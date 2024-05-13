@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/shop.dart';
-import 'package:shop_apllication_1/shopLogIn.dart';
+import 'package:shop_apllication_1/get.dart';
+import 'package:shop_apllication_1/shopProfile.dart';
 import 'package:shop_apllication_1/shopRegistr.dart';
-import 'package:shop_apllication_1/shopSplash.dart';
 
 void main() {
   runApp(const MainApp());

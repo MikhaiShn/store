@@ -1,7 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shopCategory.dart';
 import 'package:shop_apllication_1/shopHome.dart';
 import 'package:shop_apllication_1/shopProfile.dart';
@@ -21,7 +20,7 @@ class _ShopState extends State<Shop> {
     return Scaffold(
       appBar: AppBar(
         title: Text(' '),
-        backgroundColor: const Color.fromARGB(255, 141, 102, 88),
+        backgroundColor: brown,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -33,7 +32,7 @@ class _ShopState extends State<Shop> {
                 constraints:
                     BoxConstraints.expand(width: double.infinity, height: 100),
                 decoration: BoxDecoration(
-                    color: Color.fromRGBO(152, 105, 90, 0.65),
+                    color: brown,
                     borderRadius: BorderRadius.circular(10.0)),
                 child: Center(child: Text('Сумма всего актива', style: textH1)),
               ),
@@ -44,7 +43,7 @@ class _ShopState extends State<Shop> {
                 constraints:
                     BoxConstraints.expand(width: double.infinity, height: 100),
                 decoration: BoxDecoration(
-                    color: Color.fromRGBO(152, 105, 90, 0.65),
+                    color:brown,
                     borderRadius: BorderRadius.circular(10.0)),
                 child:
                     Center(child: Text('Доход за этот месяц', style: textH1)),
@@ -65,7 +64,7 @@ class _ShopState extends State<Shop> {
                         width: double.infinity, height: 50),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                        color: Color.fromRGBO(152, 105, 90, 0.65)),
+                        color:brown),
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -84,13 +83,13 @@ class _ShopState extends State<Shop> {
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.home,
-                  color: Color.fromRGBO(152, 105, 90, 0.65),
+                  color:brown,
                 ),
                 label: 'Home'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.category,
-                  color: Color.fromRGBO(152, 105, 90, 0.65),
+                  color:brown,
                 ),
                 label: 'Category'),
             BottomNavigationBarItem(
@@ -127,7 +126,7 @@ class _ShopState extends State<Shop> {
                   height: 200,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color.fromRGBO(152, 105, 90, 0.65)),
+                      color:brown),
                 ),
                 Text('Модели'),
                 Text('Работы кроц'),
