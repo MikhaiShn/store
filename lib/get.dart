@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/shopLoginModal.dart';
+import 'package:shop_apllication_1/RegisterModals/shopLoginModal.dart';
 
 class Get extends StatefulWidget {
   const Get({super.key});

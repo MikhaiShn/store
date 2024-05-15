@@ -1,18 +1,16 @@
 import 'dart:convert';
-import 'globals.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/shopLoginModal.dart';
-import 'methods/methodGalery.dart';
-import 'package:shop_apllication_1/shopProfile.dart';
+import 'package:shop_apllication_1/RegisterModals/shopLoginModal.dart';
 
 class ShopRegister extends StatefulWidget {
   const ShopRegister({super.key});
-  
+
   @override
   State<ShopRegister> createState() => _ShopRegisterState();
-  
 }
 
 class _ShopRegisterState extends State<ShopRegister> {
@@ -26,7 +24,19 @@ class _ShopRegisterState extends State<ShopRegister> {
   TextEditingController companySelerInfo = TextEditingController();
   TextEditingController companySelerLogo = TextEditingController();
   TextEditingController companySelerbIN = TextEditingController();
-  
+  Color greyTransparentColor = Color.fromRGBO(128, 128, 128, 0.5);
+  File? photo;
+
+  Future<void> _pickImageFromGallery() async {
+    ImagePicker imagePicker = ImagePicker();
+    XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        photo = File(image.path);
+      });
+    }
+  }
+
   Widget buildTextFormField(
       String labelText, TextEditingController controller) {
     return Padding(
@@ -46,8 +56,32 @@ class _ShopRegisterState extends State<ShopRegister> {
 
   Future<void> postInfoFromServer() async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:3000/register/manufacturer'),
+      Uri.parse('http://10.0.2.2:5000/register/manufacturer'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "BIN": companySelerbIN.text,
+        "ManufacturerName": companySelerNameFile.text,
+        "ManufacturerCountry": companySelerCountryFile.text,
+        "ManufacturerAdress": companySelerAdress.text,
+        "ManufacturerContact": companySelerContactFile.text,
+        "ManufacturerIndustry": companySelerIndustry.text,
+        "ManufacturerEmail": companySelerEmailFile.text,
+        "ManufacturerInfo": companySelerInfo.text,
+        "ManufacturerLogo": companySelerLogo.text,
+      }),
     );
+
+    print('body: ${jsonEncode({
+          "BIN": companySelerbIN.text,
+          "ManufacturerName": companySelerNameFile.text,
+          "ManufacturerCountry": companySelerCountryFile.text,
+          "ManufacturerAdress": companySelerAdress.text,
+          "ManufacturerContact": companySelerContactFile.text,
+          "ManufacturerIndustry": companySelerIndustry.text,
+          "ManufacturerEmail": companySelerEmailFile.text,
+          "ManufacturerInfo": companySelerInfo.text,
+          "ManufacturerLogo": companySelerLogo.text,
+        })}');
 
     print('hh: ${response.body}');
     print(response.statusCode);
@@ -93,9 +127,7 @@ class _ShopRegisterState extends State<ShopRegister> {
                 color: greyTransparentColor,
               ),
               child: InkWell(
-                onTap:() {
-                  pickImageFromGallery(setState);
-                },
+                onTap: _pickImageFromGallery,
                 child: Center(
                   child: photo != null
                       ? Image.file(
@@ -121,10 +153,7 @@ class _ShopRegisterState extends State<ShopRegister> {
             buildTextFormField('Индустрия', companySelerIndustry),
             ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    postInfoFromServer();
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ShopProfile()));
-                  });
+                  postInfoFromServer();
                 },
                 child: Text('Зарегистрироваться')),
             Text(companySelerAdress.text),
