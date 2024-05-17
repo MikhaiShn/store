@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/shop.dart';
-import 'package:shop_apllication_1/shopLogIn.dart';
 import 'package:shop_apllication_1/shopRegistr.dart';
-import 'package:shop_apllication_1/shopSplash.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,7 +10,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: "Flutter Notes",
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
       home: ShopRegister()
     );
   }

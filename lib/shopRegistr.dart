@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/shopLoginModal.dart';
-import 'package:shop_apllication_1/shopLoginModal.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ShopRegister extends StatefulWidget {
   const ShopRegister({super.key});
@@ -55,23 +53,33 @@ class _ShopRegisterState extends State<ShopRegister> {
     );
   }
 
-  Future postInfoFromServer() async {
-    final response = await http.post(Uri.parse('http://10.0.2.2:5000/register/manufacturer'), 
-  headers: <String, String>{
-    'Content-Type': 'application/json; charset=UTF-8',
-  },
-  body: jsonEncode({
-    'manufacturerName': companySelerNameFile.text,
-    'manufacturerContact': companySelerContactFile.text,
-    'manufacturerCountry': companySelerCountryFile.text,
-    'manufacturerEmail': companySelerEmailFile.text,
-    'bIN': companySelerbIN.text,
-    'manufacturerAdress': companySelerAdress.text,
-    'manufacturerLogo': companySelerLogo.text,
-    'manufacturerInfo': companySelerInfo.text,
-  }),
-);
-  } //
+Future<void> postInfoFromServer() async {
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:5000/register/manufacturer'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode({
+      'manufacturerName': companySelerNameFile.text,
+      'manufacturerContact': companySelerContactFile.text,
+      'manufacturerCountry': companySelerCountryFile.text,
+      'manufacturerEmail': companySelerEmailFile.text,
+      'bIN': companySelerbIN.text,
+      'manufacturerAdress': companySelerAdress.text,
+      'manufacturerLogo': companySelerLogo.text,
+      'manufacturerInfo': companySelerInfo.text,
+      'manufacturerIndustry': companySelerIndustry.text,
+    }),
+  );
+
+  final responseData = jsonDecode(response.body);//перевод формат json на dart
+  final message = responseData['message'];
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message)),//всплывающее меню с ответом от сервера
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +97,7 @@ class _ShopRegisterState extends State<ShopRegister> {
             SizedBox(
               height: 20,
             ),
-            Container(
+            /*Container(
               width: 200,
               height: 200,
               decoration: BoxDecoration(
@@ -106,11 +114,11 @@ class _ShopRegisterState extends State<ShopRegister> {
                         )
                       : Text(
                           'Выбрать фото',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          style: TextStyle(color: Colors.white, fontSize: 25),
                         ),
                 ),
               ),
-            ),
+            ),*/
             SizedBox(height: 20),
             buildTextFormField('Наименование компании', companySelerNameFile),
             buildTextFormField('Казахстан', companySelerCountryFile),
