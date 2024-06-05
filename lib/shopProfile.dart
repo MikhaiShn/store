@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'globals.dart';
 import 'methods/methodGalery.dart';
+
 class ShopProfile extends StatefulWidget {
   const ShopProfile({super.key});
 
@@ -13,7 +14,7 @@ class _ShopProfileState extends State<ShopProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: brown,
+        backgroundColor: color,
       ),
       body: Column(
         children: [

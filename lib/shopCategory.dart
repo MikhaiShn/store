@@ -13,7 +13,7 @@ class _ShopCategoryState extends State<ShopCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:brown,
+        backgroundColor: color,
       ),
     );
   }

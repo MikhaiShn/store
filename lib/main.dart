@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/shopRegistr.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_apllication_1/methods/methodGalery.dart';
+import 'package:shop_apllication_1/shop.dart';
 
-void main() {
+void main() async {
   runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ShopRegister()
+    return MaterialApp(
+      home: Shop(),
     );
   }
 }

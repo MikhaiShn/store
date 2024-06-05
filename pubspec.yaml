@@ -13,6 +13,8 @@ dependencies:
   file_picker: ^8.0.0+1
   image_picker: ^1.1.0
   image_cropper: ^6.0.0
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -24,3 +26,14 @@ flutter:
 
   assets:
    - assets1/splash.jpeg
+   - assets1/logo.png
+   - assets1/logo1.png
+   - assets1/background.jpg
+   - assets1/icon_home.png
+   - assets1/icon_menu.png
+   - assets1/iconTMZ.png
+   - assets1/icon_model.png
+   - assets1/icon_product.png
+   - assets1/icon_materials.png
+   - assets1/icon minus.png
+   - assets1/icon_journal.png
