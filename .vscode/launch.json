@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter (lib/Сырьё/materialsSole.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/Сырьё/materialsSole.dart"
+        }
+    ]
+}

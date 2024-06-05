@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shop.dart';
-import 'package:shop_apllication_1/shopRegisterAdmin.dart';
-import 'package:shop_apllication_1/shopRegisterManager.dart';
-import 'package:shop_apllication_1/shopRegistr.dart';
 
 class ShopLogIn extends StatefulWidget {
   const ShopLogIn({Key? key}) : super(key: key);

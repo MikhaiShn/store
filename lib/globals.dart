@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/shopCategory.dart';
-import 'package:shop_apllication_1/shopHome.dart';
-import 'package:shop_apllication_1/shopMenu.dart';
-import 'package:shop_apllication_1/shopProfile.dart';
+import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
+import 'package:shop_apllication_1/shop.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+export '../globals.dart';
 
 Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Colors.blue;
-TextStyle textH1 = TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
+TextStyle textH1 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle textH2 = TextStyle(fontSize: 15, fontWeight: FontWeight.bold);
 
 Widget buildTextFormField(String labelText, TextEditingController controller) {
@@ -169,20 +170,20 @@ Widget buildBottomNavigatorBar(BuildContext context) {
       onTap: (index) {
         if (index == 0) {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ShopHome()));
-        }
-        if (index == 1) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ShopCategory()));
+              context, MaterialPageRoute(builder: (context) => Shop()));
         }
         if (index == 2) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ShopProfile()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ShopMaterials()));
         }
-        if (index == 3) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ShopMenu()));
-        }
+        // if (index == 2) {
+        //   Navigator.push(
+        //       context, MaterialPageRoute(builder: (context) => ShopProfile()));
+        // }
+        // if (index == 3) {
+        //   Navigator.push(
+        //       context, MaterialPageRoute(builder: (context) => ShopMenu()));
+        // }
       },
       type: BottomNavigationBarType.fixed,
       showUnselectedLabels: true,
@@ -190,4 +191,43 @@ Widget buildBottomNavigatorBar(BuildContext context) {
           TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
     ),
   );
+}
+
+Widget buildContainerMaterials(
+    String title, BuildContext context, Widget clazz) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => clazz));
+    },
+    child: Container(
+      height: 40,
+      decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 24, 212, 30).withOpacity(0.4),
+          border: Border.all(color: Colors.black, width: 0.15)),
+      child: Center(child: Text(title)),
+    ),
+  );
+}
+
+Widget buildAddButton(BuildContext context, VoidCallback onPressedCallback) {
+  return FloatingActionButton(
+    onPressed: onPressedCallback,
+    child: Icon(Icons.add),
+    backgroundColor:
+        Color.fromARGB(255, 6, 201, 12).withOpacity(0.4), // Цвет фона кнопки
+    foregroundColor: Colors.white, // Цвет иконки
+  );
+}
+
+File? photo;
+//Метод для создании контейнера при нажатии которого будет доступ к галерее
+Future<void> pickImageFromGallery(
+    void Function(void Function()) setStateCallback) async {
+  ImagePicker imagePicker = ImagePicker();
+  XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    setStateCallback(() {
+      photo = File(image.path);
+    });
+  }
 }
