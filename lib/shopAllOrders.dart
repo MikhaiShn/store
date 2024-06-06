@@ -17,7 +17,6 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbarTitle('Заказы'),
       body: Column(
         children: [
           Expanded(
@@ -88,7 +87,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
           );
         },
       ),
-      bottomNavigationBar: buildBottomNavigatorBar(context),
+      //bottomNavigationBar: buildBottomNavigatorBar(context),
     );
   }
 }

@@ -12,15 +12,21 @@ class _ShopMaterialsThreadsState extends State<ShopMaterialsThreads> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbarTitle('Нитки'),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [],
-          ),
+      appBar: AppBar(
+        title: Text('Нитки'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Возврат на предыдущий экран
+          },
         ),
       ),
-      bottomNavigationBar: buildBottomNavigatorBar(context),
+      body: Container(
+        child: Column(
+          children: [],
+        ),
+      ),
+      floatingActionButton: buildAddButton(context, () {}),
     );
   }
 }

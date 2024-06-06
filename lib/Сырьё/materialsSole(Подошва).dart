@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/globals.dart';
 
-class ShopMaterialsLaces extends StatefulWidget {
-  const ShopMaterialsLaces({super.key});
+import '../globals.dart';
+
+class ShopMaterialsSole extends StatefulWidget {
+  const ShopMaterialsSole({super.key});
 
   @override
-  State<ShopMaterialsLaces> createState() => _ShopMaterialsLacesState();
+  State<ShopMaterialsSole> createState() => _ShopMaterialsSoleState();
 }
 
-class _ShopMaterialsLacesState extends State<ShopMaterialsLaces> {
+class _ShopMaterialsSoleState extends State<ShopMaterialsSole> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Шнурки'),
+        title: Text('Подошва'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {

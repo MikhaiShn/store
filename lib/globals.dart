@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
-import 'package:shop_apllication_1/shop.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 export '../globals.dart';
@@ -9,6 +7,29 @@ Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Colors.blue;
 TextStyle textH1 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle textH2 = TextStyle(fontSize: 15, fontWeight: FontWeight.bold);
+
+Widget buildSliverAppbar(String title) {
+  return SliverAppBar(
+    pinned: false, // Оставаться видимым при прокрутке вниз
+    flexibleSpace: FlexibleSpaceBar(
+      centerTitle: true,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.asset(
+            'assets1/logo.png',
+            fit: BoxFit.cover,
+            height: AppBar().preferredSize.height,
+          ),
+          SizedBox(width: 8), // добавляем отступ между логотипом и текстом
+          Text(title),
+        ],
+      ),
+    ),
+    toolbarHeight: 80,
+    floating: false,
+  );
+}
 
 Widget buildTextFormField(String labelText, TextEditingController controller) {
   //Это метод для создания текстовых полей для ввода
@@ -91,29 +112,47 @@ class Order {
 //   return buildOrderRow(Colors.green.withOpacity(0.4), context);
 // }
 
-PreferredSizeWidget appbarTitle(String titlePage) {
-  return AppBar(
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Image.asset(
-          'assets1/logo.png',
-          fit: BoxFit.contain,
-          height: 50,
-        ),
-        Text(
-          titlePage,
-          style: textH1,
-        ),
-        SizedBox(
-          width: 30,
-        )
-      ],
+Widget buildContainerMaterials(
+    String title, BuildContext context, Widget clazz) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => clazz));
+    },
+    child: Container(
+      height: 40,
+      decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 24, 212, 30).withOpacity(0.4),
+          border: Border.all(color: Colors.black, width: 0.15)),
+      child: Center(child: Text(title)),
     ),
   );
 }
 
-Widget buildBottomNavigatorBar(BuildContext context) {
+Widget buildAddButton(BuildContext context, VoidCallback onPressedCallback) {
+  return FloatingActionButton(
+    onPressed: onPressedCallback,
+    child: Icon(Icons.add),
+    backgroundColor:
+        Color.fromARGB(255, 6, 201, 12).withOpacity(0.4), // Цвет фона кнопки
+    foregroundColor: Colors.white, // Цвет иконки
+  );
+}
+
+File? photo;
+//Метод для создании контейнера при нажатии которого будет доступ к галерее
+Future<void> pickImageFromGallery(
+    void Function(void Function()) setStateCallback) async {
+  ImagePicker imagePicker = ImagePicker();
+  XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    setStateCallback(() {
+      photo = File(image.path);
+    });
+  }
+}
+
+Widget buildBottomNavigatorBar(
+    BuildContext context, int selectedIndex, void Function(int) onItemTapped) {
   return Container(
     decoration: BoxDecoration(
       color: Colors.white, // Цвет фона
@@ -167,67 +206,12 @@ Widget buildBottomNavigatorBar(BuildContext context) {
           label: 'Меню',
         ),
       ],
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Shop()));
-        }
-        if (index == 2) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ShopMaterials()));
-        }
-        // if (index == 2) {
-        //   Navigator.push(
-        //       context, MaterialPageRoute(builder: (context) => ShopProfile()));
-        // }
-        // if (index == 3) {
-        //   Navigator.push(
-        //       context, MaterialPageRoute(builder: (context) => ShopMenu()));
-        // }
-      },
+      currentIndex: selectedIndex,
+      onTap: onItemTapped,
       type: BottomNavigationBarType.fixed,
       showUnselectedLabels: true,
       unselectedLabelStyle:
           TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
     ),
   );
-}
-
-Widget buildContainerMaterials(
-    String title, BuildContext context, Widget clazz) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => clazz));
-    },
-    child: Container(
-      height: 40,
-      decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 24, 212, 30).withOpacity(0.4),
-          border: Border.all(color: Colors.black, width: 0.15)),
-      child: Center(child: Text(title)),
-    ),
-  );
-}
-
-Widget buildAddButton(BuildContext context, VoidCallback onPressedCallback) {
-  return FloatingActionButton(
-    onPressed: onPressedCallback,
-    child: Icon(Icons.add),
-    backgroundColor:
-        Color.fromARGB(255, 6, 201, 12).withOpacity(0.4), // Цвет фона кнопки
-    foregroundColor: Colors.white, // Цвет иконки
-  );
-}
-
-File? photo;
-//Метод для создании контейнера при нажатии которого будет доступ к галерее
-Future<void> pickImageFromGallery(
-    void Function(void Function()) setStateCallback) async {
-  ImagePicker imagePicker = ImagePicker();
-  XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-  if (image != null) {
-    setStateCallback(() {
-      photo = File(image.path);
-    });
-  }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../globals.dart';
 
 class ShopMaterialsLeather extends StatefulWidget {
-  const ShopMaterialsLeather({super.key});
+  const ShopMaterialsLeather({Key? key});
 
   @override
   State<ShopMaterialsLeather> createState() => _ShopMaterialsLeatherState();
@@ -13,15 +13,21 @@ class _ShopMaterialsLeatherState extends State<ShopMaterialsLeather> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbarTitle('Кожа'),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [ElevatedButton(onPressed: () {}, child: Text(''))],
-          ),
+      appBar: AppBar(
+        title: Text('Кожа'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Возврат на предыдущий экран
+          },
         ),
       ),
-      bottomNavigationBar: buildBottomNavigatorBar(context),
+      body: Container(
+        child: Column(
+          children: [],
+        ),
+      ),
+      floatingActionButton: buildAddButton(context, () {}),
     );
   }
 }

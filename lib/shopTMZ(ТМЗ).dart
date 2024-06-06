@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:shop_apllication_1/globals.dart';
 
-class ShopJournal extends StatefulWidget {
-  const ShopJournal({Key? key}) : super(key: key);
+class ShopTMZ extends StatefulWidget {
+  const ShopTMZ({super.key});
 
   @override
-  State<ShopJournal> createState() => _ShopJournalState();
+  State<ShopTMZ> createState() => _ShopTMZState();
 }
 
-class _ShopJournalState extends State<ShopJournal> {
+class _ShopTMZState extends State<ShopTMZ> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          buildSliverAppbar('Журнал'),
+          buildSliverAppbar('ТМЗ'),
           SliverToBoxAdapter(),
         ],
       ),

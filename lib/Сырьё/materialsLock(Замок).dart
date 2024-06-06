@@ -12,15 +12,21 @@ class _ShopMaterialsLockState extends State<ShopMaterialsLock> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbarTitle('Замок'),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [],
-          ),
+      appBar: AppBar(
+        title: Text('Замок'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Возврат на предыдущий экран
+          },
         ),
       ),
-      bottomNavigationBar: buildBottomNavigatorBar(context),
+      body: Container(
+        child: Column(
+          children: [],
+        ),
+      ),
+      floatingActionButton: buildAddButton(context, () {}),
     );
   }
 }
