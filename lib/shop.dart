@@ -8,7 +8,7 @@ import 'shopTMZ(ТМЗ).dart';
 import 'Сырьё/shopMaterials(Сырьё).dart';
 
 class Shop extends StatefulWidget {
-  const Shop({super.key});
+  const Shop({super.key, required String token});
 
   @override
   State<Shop> createState() => _ShopState();

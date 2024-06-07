@@ -7,7 +7,8 @@ Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Colors.blue;
 TextStyle textH1 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle textH2 = TextStyle(fontSize: 15, fontWeight: FontWeight.bold);
-
+String binClient = ' ';
+String manufacturerIndustryName = ' ';
 Widget buildSliverAppbar(String title) {
   return SliverAppBar(
     pinned: false, // Оставаться видимым при прокрутке вниз
