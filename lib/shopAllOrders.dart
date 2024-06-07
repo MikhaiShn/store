@@ -58,7 +58,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
         final responseBody = jsonDecode(response.body);
         _token = responseBody['token'] ?? '';
         AddZakaz addZakaz = AddZakaz.fromJson(responseBody);
-        addZakaz.zakazModel = zakazModelController.text;
+        addZakaz.zakazModel = zakazModelController.text;//ьАЙКЛ
         addZakaz.zakazSize = zakazSizeController.text;
         addZakaz.zakazColor = zakazColorController.text;
         addZakaz.zakazComment = zakazCommentController.text;
