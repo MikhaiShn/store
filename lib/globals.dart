@@ -49,69 +49,7 @@ Widget buildTextFormField(String labelText, TextEditingController controller) {
   );
 }
 
-Widget buildOrderRow(
-    //Метод для создания "каркасов" заказа
-    Color color,
-    BuildContext context,
-    List<Order>? orders,
-    int index) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              child: Container(
-                height: 150,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("ID заказа: ${orders?[index].id ?? 'Unknown'}"),
-                    Text("Продукт: ${orders?[index].product ?? 'Unknown'}"),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-      child: Container(
-        height: 50,
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Text(orders?[index].id ?? 'Unknown'),
-        ),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-      ),
-    ),
-  );
-}
 
-class Order {
-  final String id;
-  final String product;
-
-  Order({
-    required this.id,
-    required this.product,
-  });
-
-  static fromJson(json) {}
-}
-
-// Widget proccessingOrders(BuildContext context) {
-//   return buildOrderRow(
-//       const Color.fromARGB(255, 209, 209, 209).withOpacity(0.4), context);
-// }
-
-// Widget completedOrders(BuildContext context) {
-//   return buildOrderRow(Colors.green.withOpacity(0.4), context);
-// }
 
 Widget buildContainerMaterials(
     String title, BuildContext context, Widget clazz) {
