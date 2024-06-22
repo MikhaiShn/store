@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shopeHome.dart';
+import 'package:shop_apllication_1/shopeHome(%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F).dart';
 
 import 'shopJournal(Журнал).dart';
 import 'shopMenu(Меню).dart';

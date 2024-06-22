@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../globals.dart';
+import 'package:shop_apllication_1/globals.dart';
 
 class ShopMaterialsSole extends StatefulWidget {
   const ShopMaterialsSole({super.key});

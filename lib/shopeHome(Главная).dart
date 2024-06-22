@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/%D0%97%D0%B0%D0%BA%D0%B0%D0%B7%D1%8B/shopAllOrders.dart';
+
+import 'Заказы/shopAllOrders.dart';
 
 class ShopHome extends StatefulWidget {
   const ShopHome({Key? key}) : super(key: key);
@@ -22,17 +24,15 @@ class _ShopHomeState extends State<ShopHome> {
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    constraints: BoxConstraints.expand(
-                        width: double.infinity, height: 100),
-                    decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(10.0)),
-                    child: Center(
-                      child: Text('Сумма всего актива', style: textH1),
-                    ),
+                SizedBox(
+                  height: 150,
+                  child: PageView(
+                    controller: _pageController,
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      buildPageViewContainer('Сумма всего актива', Colors.green.withOpacity(0.4)),
+                      buildPageViewContainer('Активы на реализации', Colors.grey.withOpacity(0.4))
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -56,7 +56,7 @@ class _ShopHomeState extends State<ShopHome> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ShopAllOrders()));
+                                builder: (context) => ShopAllOrders(token: 'Admin',)));
                       },
                       child: Text(
                         'Все',
@@ -145,6 +145,7 @@ class _ShopHomeState extends State<ShopHome> {
       ),
     );
   }
+
 
   @override
   void dispose() {

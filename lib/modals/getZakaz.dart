@@ -65,4 +65,9 @@ class GetZakaz {
     data['__v'] = this.iV;
     return data;
   }
+
+    @override
+  String toString() {
+    return 'GetZakaz(sId: $sId, bin: $bin, manufacturerIndustry: $manufacturerIndustry, zakazID: $zakazID, zakazModel: $zakazModel, zakazSize: $zakazSize, zakazColor: $zakazColor, zakazQuantity: $zakazQuantity, zakazSellingprice: $zakazSellingprice)';
+  }
 }

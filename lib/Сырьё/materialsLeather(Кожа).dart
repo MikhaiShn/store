@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../globals.dart';
+import 'package:shop_apllication_1/globals.dart';
 
 class ShopMaterialsLeather extends StatefulWidget {
   const ShopMaterialsLeather({Key? key});

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/getProductModal.dart';
+import 'package:shop_apllication_1/modals/getProductModal.dart';
+
+import 'globals.dart';
 
 class ShopProduct extends StatefulWidget {
   const ShopProduct({super.key});
@@ -15,8 +17,16 @@ class _ShopProductState extends State<ShopProduct> {
   bool isLoading = true;
   String errorMessage = '';
 
+    @override
+  void initState() {
+    super.initState();
+    getProduct();
+    print(modalProduct);
+  }
+
+
   Future<void> getProduct() async {
-    final url = 'http://10.0.2.2:5000/product/all'; // Убедитесь, что URL правильный
+    final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all'; // Убедитесь, что URL правильный
     print('Fetching products from: $url'); // Отладочное сообщение
     try {
       final response = await http.get(Uri.parse(url));
@@ -25,6 +35,7 @@ class _ShopProductState extends State<ShopProduct> {
         setState(() {
           finishedProduct = responseBody.map((data) => GetProduct.fromJson(data)).toList();
           isLoading = false;
+          modalProduct = finishedProduct.map((product) => product.productName!).toList();
         });
         print('Successfully fetched products.'); // Отладочное сообщение
       } else {
@@ -43,12 +54,20 @@ class _ShopProductState extends State<ShopProduct> {
       print('Ошибка: $e');
     }
   }
+    
+  // Future<List<Map<String, dynamic>>> getProduct_() async{
+  //   var request = await http.Request('GET', Uri.parse('http://10.0.2.2:5000/product/all'));
+  //   final response = await request.send();
+  //   if(response.statusCode == 200){
+  //             String responseBody = await response.stream.bytesToString();
+  //       List<dynamic> productsList = jsonDecode(responseBody);
+  //       return productsList.cast<Map<String, dynamic>>();
+  //   } else {
+  //       throw Exception('Ошибка при получении продуктов: ${response.reasonPhrase}');
+  //     }
+  //   } 
+  // }
 
-  @override
-  void initState() {
-    super.initState();
-    getProduct();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +84,7 @@ class _ShopProductState extends State<ShopProduct> {
                   itemBuilder: (context, index) {
                     final takeProduct = finishedProduct[index];
                     return Container(
+                      
                       height: 100,
                       margin: EdgeInsets.all(8.0),
                       padding: EdgeInsets.all(16.0),

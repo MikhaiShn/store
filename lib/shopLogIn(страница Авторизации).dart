@@ -1,15 +1,13 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
-import 'package:shop_apllication_1/AuthModal.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shop.dart';
-export 'package:shop_apllication_1/AuthModal.dart';
+export 'package:shop_apllication_1/modals/AuthModal.dart';
 import 'package:http/http.dart' as http;
+
+import 'Заказы/shopAllOrders.dart';
+import 'Заказы/shopAllOrdersManager.dart';
 
 
 class ShopLogIn extends StatefulWidget {
@@ -28,9 +26,9 @@ class _ShopLogInState extends State<ShopLogIn> {
   TextEditingController _passwordController = TextEditingController();
   String? _token;
   
-  Future<void> _login() async {
+ Future<void> _login() async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5000/auth/login'),
+      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/auth/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -40,40 +38,48 @@ class _ShopLogInState extends State<ShopLogIn> {
       }),
     );
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      _token = responseBody['token'];
-      AuthLogin authLogin = AuthLogin.fromJson(responseBody);
-      authLogin.login = _loginController.text;
-      authLogin.password = _passwordController.text;
-
-      if (_token != null) {
-        Map<String, dynamic> payload = Jwt.parseJwt(_token!);
-        String? role = payload['role'];
-        binClient = payload['bin'];
-        manufacturerIndustryName = payload['manufacturerIndustry']; 
-        if (role == 'WarehouseManager') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ShopMaterials()),
-          );
-          print(role);
-        } else if (role =='WarehouseAdmin') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Shop(token: _token!)));
-        } else {
-          _showErrorDialog(context, "Вы вошли в систему, но ваша роль не определена");
-        }
+if (response.statusCode == 200) {
+  final responseBody = jsonDecode(response.body);
+  _token = responseBody['token'];
+  if (_token != null) {
+    try {
+      Map<String, dynamic> payload = Jwt.parseJwt(_token!);
+      print(payload);
+      print("token: $_token");
+      String? role = payload['role'] as String?;
+      String? bin = payload['bin'] as String?;
+      String? manufacturerIndustry = payload['manufacturerIndustry'] as String?;
+      String? id = payload['_id'] as String;
+      // Вывод данных для отладки
+      print("bin: $bin");
+      print("manufacturerIndustry: $manufacturerIndustry");
+      print('role: $role');
+      print('id: $id');
+      if (role == 'WarehouseManager') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ShopAllOrdersManager()),
+        );
+      } else if (role == 'WarehouseAdmin') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ShopAllOrders(token: _token!)),
+        );
       } else {
-        _showErrorDialog(context, "Ошибка авторизации");
+        _showErrorDialog(context, "Вы вошли в систему, но ваша роль не определена");
       }
-    } else if (response.statusCode == 401) {
-      _showErrorDialog(context, "Пользователь c таким логином не найден");
-    } else if (response.statusCode == 402) {
-      _showErrorDialog(context, "Неправильный пароль");
-    } else {
-      _showErrorDialog(context, "Ошибка сервера");
+    } catch (e) {
+      print("Error while parsing JWT payload: $e");
+      _showErrorDialog(context, "Ошибка при обработке токена");
     }
+  } else {
+    _showErrorDialog(context, "Ошибка авторизации");
   }
+}
+
+
+}
+
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
@@ -165,10 +171,11 @@ class _ShopLogInState extends State<ShopLogIn> {
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _login,
+                  onPressed: (){_login();Navigator.push(context, MaterialPageRoute(builder: (context) => Shop(token: ' ',)));
+                  
                   style: ElevatedButton.styleFrom(
                     backgroundColor: color,
-                  ),
+                  ); },
                   child: Text(
                     'Войти',
                     style: TextStyle(color: Colors.white),
