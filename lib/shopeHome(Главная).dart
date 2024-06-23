@@ -1,11 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shop_apllication_1/globals.dart';
+import 'package:shop_apllication_1/shop.dart';
+import 'package:shop_apllication_1/shopProductManager.dart';
 
 import 'Заказы/shopAllOrders.dart';
 
 class ShopHome extends StatefulWidget {
-  const ShopHome({Key? key}) : super(key: key);
+  const ShopHome({super.key});
 
   @override
   State<ShopHome> createState() => _ShopHomeState();
@@ -18,9 +21,10 @@ class _ShopHomeState extends State<ShopHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: CustomScrollView(
         slivers: <Widget>[
-          buildSliverAppbar(' '),
+          buildSliverAppbar(manufacturerIndustryName!),
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -30,121 +34,65 @@ class _ShopHomeState extends State<ShopHome> {
                     controller: _pageController,
                     scrollDirection: Axis.horizontal,
                     children: [
-                      buildPageViewContainer('Сумма всего актива', Colors.green.withOpacity(0.4)),
-                      buildPageViewContainer('Активы на реализации', Colors.grey.withOpacity(0.4))
+                      buildPageViewContainer('Сумма всего актива',
+                          Color.fromARGB(255, 159, 243, 166)),
+                      buildPageViewContainer(
+                          'Активы на реализации', Colors.grey.withOpacity(0.4))
                     ],
                   ),
                 ),
                 SizedBox(
                   height: 15,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 80.0),
-                          child: Text(
-                            'Заказы',
-                            style: textH1,
-                          ),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ShopAllOrders(token: 'Admin',)));
-                      },
-                      child: Text(
-                        'Все',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                      style: ButtonStyle(
-                        fixedSize: MaterialStateProperty.resolveWith(
-                            (states) => Size(80, 16)),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _pageController.animateToPage(0,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.ease);
-                      },
-                      child: Text(
-                        'Выполненные',
-                        style: textH2,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        _pageController.animateToPage(1,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.ease);
-                      },
-                      child: Text(
-                        'В обработке',
-                        style: textH2,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Column(
-                  children: [
-                    Container(
-                      height: 500,
-                      child: PageView(
-                        scrollDirection: Axis.horizontal,
-                        onPageChanged: (int page) {
-                          setState(() {
-                            currentPage = page;
-                          });
-                        },
+                Container(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Container(
-                            child: Column(
-                              children: [],
-                            ),
-                          ),
-                          Container(
-                            child: Column(
-                              children: [],
-                            ),
-                          )
+                          buildIcon(
+                              Icons.assignment, "Заказы", Colors.green, 30,ShopAllOrders(token: token!),context),
+                              buildIcon(
+                              Icons.check_box, "   Готовая\nпродукция", Colors.green, 30,ShopProductManager(),context),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Container(
-              height: 500,
-            ), // Замените Placeholder() на ваш реальный контент
           ),
         ],
       ),
     );
   }
+
+
+
+Widget buildIcon(IconData iconData, String title, Color color, double size, Widget clazz, BuildContext context) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => clazz));
+    },
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          iconData,
+          color: color,
+          size: size,
+        ),
+        SizedBox(height: 8), // Добавим небольшой отступ между иконкой и текстом
+        Center(
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 
   @override

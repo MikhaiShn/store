@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shop_apllication_1/globals.dart';
@@ -9,26 +10,22 @@ import 'package:http/http.dart' as http;
 import 'Заказы/shopAllOrders.dart';
 import 'Заказы/shopAllOrdersManager.dart';
 
-
 class ShopLogIn extends StatefulWidget {
-
   const ShopLogIn({Key? key}) : super(key: key);
 
   @override
   State<ShopLogIn> createState() => _ShopLogInState();
 }
 
-
 class _ShopLogInState extends State<ShopLogIn> {
   bool show = true;
-  String selectedRole = 'Administrator';
   TextEditingController _loginController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  String? _token;
-  
- Future<void> _login() async {
+
+  Future<void> _login() async {
     final response = await http.post(
-      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/auth/login'),
+      Uri.parse(
+          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/auth/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -38,48 +35,26 @@ class _ShopLogInState extends State<ShopLogIn> {
       }),
     );
 
-if (response.statusCode == 200) {
-  final responseBody = jsonDecode(response.body);
-  _token = responseBody['token'];
-  if (_token != null) {
-    try {
-      Map<String, dynamic> payload = Jwt.parseJwt(_token!);
-      print(payload);
-      print("token: $_token");
-      String? role = payload['role'] as String?;
-      String? bin = payload['bin'] as String?;
-      String? manufacturerIndustry = payload['manufacturerIndustry'] as String?;
-      String? id = payload['_id'] as String;
-      // Вывод данных для отладки
-      print("bin: $bin");
-      print("manufacturerIndustry: $manufacturerIndustry");
-      print('role: $role');
-      print('id: $id');
-      if (role == 'WarehouseManager') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ShopAllOrdersManager()),
-        );
-      } else if (role == 'WarehouseAdmin') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ShopAllOrders(token: _token!)),
-        );
-      } else {
-        _showErrorDialog(context, "Вы вошли в систему, но ваша роль не определена");
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      print('Response body: $responseBody'); // Логирование тела ответа
+      token = responseBody['token'];
+      
+      if (token != null) {
+        try {
+          Map<String, dynamic> payload = Jwt.parseJwt(token!);
+          role = payload['role'];
+          binClient = payload['bin'];
+          manufacturerIndustryName = payload['manufacturerIndustry'];
+          String? id = payload['_id'] as String?;
+          // Вывод данных для отладки
+        } catch (e) {
+          print("Error while parsing JWT payload: $e");
+          _showErrorDialog(context, "Ошибка при обработке токена");
+        }
       }
-    } catch (e) {
-      print("Error while parsing JWT payload: $e");
-      _showErrorDialog(context, "Ошибка при обработке токена");
     }
-  } else {
-    _showErrorDialog(context, "Ошибка авторизации");
   }
-}
-
-
-}
-
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
@@ -171,11 +146,24 @@ if (response.statusCode == 200) {
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: (){_login();Navigator.push(context, MaterialPageRoute(builder: (context) => Shop(token: ' ',)));
-                  
+                  onPressed: () {
+                    _login().then((_) {
+                      if (token != null) {
+                        print('role: $role');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Shop(token: token!)),
+                        );
+                      } else {
+                        // Если токен равен null, обработка ошибки или отображение сообщения пользователю
+                        _showErrorDialog(context, "Непрвильный логин или пороль");
+                      }
+                    });
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: color,
-                  ); },
+                  ),
                   child: Text(
                     'Войти',
                     style: TextStyle(color: Colors.white),

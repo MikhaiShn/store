@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shop_apllication_1/modals/getProductModal.dart';
 
+import 'globals.dart';
+
 class ShopProductManager extends StatefulWidget {
   const ShopProductManager({super.key});
 
@@ -17,7 +19,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
   String errorMessage = '';
 
   Future<void> addProduct(Map<String, dynamic> newProduct) async {
-  final url = '/product/add';
+  final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/add';
   final body = jsonEncode(newProduct);
   final headers = {'Content-Type': 'application/json'};
 
@@ -37,9 +39,9 @@ class _ShopProductManagerState extends State<ShopProductManager> {
 
   Future<void> getProduct() async {
     final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
-    print('Fetching products from: $url');
+    print('token Product: $token');
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url),headers: {'Authorization': 'Bearer $token'},);
       if (response.statusCode == 200) {
         List<dynamic> responseBody = jsonDecode(response.body);
         setState(() {
@@ -198,6 +200,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
                   child: SingleChildScrollView(
                     child: ListBody(
                       children: <Widget>[
+                        buildEditableText('bin', product.bin!, product),
                         buildEditableText('Тип', product.productType.toString(), product),
                         buildEditableText('Наим-е', product.productName.toString(), product),
                         buildEditableText('Ком-ий', product.productComment.toString(), product),

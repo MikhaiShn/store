@@ -157,8 +157,8 @@ class _ShopAllOrdersManagerState extends State<ShopAllOrdersManager> {
             child: buildOrderRow(
               context,
               takeListZakaz.sId ?? '',
-              binClient ?? '',
-              manufacturerIndustryName ?? '',
+              takeListZakaz.bin ?? '',
+              takeListZakaz.manufacturerIndustry ?? '',
               takeListZakaz.zakazID ?? 0,
               takeListZakaz.zakazModel ?? '',
               takeListZakaz.zakazSize ?? ' ',

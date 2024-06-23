@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/sjopProductManager.dart';
+import 'package:shop_apllication_1/shopLogIn(%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8).dart';
+import 'package:shop_apllication_1/shopProductManager.dart';
+import 'shopProduct (Готовая продукция).dart';
 
 class ShopMenu extends StatefulWidget {
   const ShopMenu({super.key});
@@ -13,9 +15,19 @@ class _ShopMenuState extends State<ShopMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Меню'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              _logout(); // Вызываем метод для выхода
+            },
+          ),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
-          buildSliverAppbar('Меню'),
           SliverToBoxAdapter(
             child: GestureDetector(
               onTap: () {
@@ -29,8 +41,8 @@ class _ShopMenuState extends State<ShopMenu> {
                 child: Text(
                   'Готовая продукция',
                   style: textH1,
-                  overflow: TextOverflow.ellipsis, // Обрезка текста с многоточием
-                  maxLines: 1, // Максимальное количество строк (1 строка)
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ),
@@ -39,5 +51,22 @@ class _ShopMenuState extends State<ShopMenu> {
       ),
     );
   }
-}
 
+void _logout() {
+  // Очищаем данные сессии
+  token = null;
+  role = null;
+  binClient = null;
+  manufacturerIndustryName = null;
+
+  print('token logout: $token');
+  print('role: $role');
+  print('bin: $binClient');
+
+  // Перенаправляем пользователя на экран входа или другой начальный экран
+  // Navigator.pushReplacement(
+  //   context,
+  //   // MaterialPageRoute(builder: (context) => ShopLogIn(prefs: null,)),
+  // );
+}
+}

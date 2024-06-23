@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 export 'package:shop_apllication_1/globals.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Colors.blue;
 TextStyle textH1 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 TextStyle textH2 = TextStyle(fontSize: 18);
-TextStyle textH3 = TextStyle(fontSize: 14, color: Colors.white,overflow: TextOverflow.ellipsis,);
-String binClient = ' ';
+TextStyle textH3 = TextStyle(fontSize: 20);
+String? binClient;
+String? role;
 File? photo;
-String manufacturerIndustryName = ' ';
+String? token;
+String? manufacturerIndustryName;
 
 TextEditingController zakazModelController = TextEditingController();
 TextEditingController zakazSizeController = TextEditingController();
@@ -28,6 +30,11 @@ String getModal = ' ';
 List<dynamic> quantityProduct = [];
 List<String> modalProduct = [];
 
+
+
+
+
+
 Widget buildSliverAppbar(String title) {
   return SliverAppBar(
     pinned: false, // Оставаться видимым при прокрутке вниз
@@ -42,7 +49,7 @@ Widget buildSliverAppbar(String title) {
             height: AppBar().preferredSize.height,
           ),
           SizedBox(width: 8), // добавляем отступ между логотипом и текстом
-          Text(title),
+          Text(title, style: textH1,),
         ],
       ),
     ),
@@ -146,6 +153,9 @@ Widget buildOrderRow(
         context: context,
         builder: (context) {
           return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0), // Закругленные углы диалога
+            ),
             child: Container(
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.4,
@@ -172,12 +182,19 @@ Widget buildOrderRow(
       );
     },
     child: Container(
-      height: 101,
-      margin: EdgeInsets.all(8.0),
-      padding: EdgeInsets.all(12.0),
+      padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       decoration: BoxDecoration(
-        color: Colors.green,
+        color: Colors.white, // Белый цвет для контейнеров
         borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Цвет тени
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3), // Смещение тени
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,16 +202,14 @@ Widget buildOrderRow(
         children: [
           Text(
             'Номер заказа: ${zakazID}',
-            style: textH3,
-            maxLines: 1,
+             style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
             softWrap: true, // Перенос на новую строку при необходимости
           ),
           SizedBox(height: 4),
           Text(
             'Model: ${model}',
-            style: textH3,
-            maxLines: 1,
+            style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold), // Использование textH3
             overflow: TextOverflow.ellipsis,
             softWrap: true, // Перенос на новую строку при необходимости
           ),
@@ -203,15 +218,14 @@ Widget buildOrderRow(
             children: [
               Text(
                 'На складе: ${productAvailability}',
-                style: textH3,
+                 style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Spacer(),
               Text(
                 'Нужное кол-во: ${quantity}шт',
-                style: textH3,
-                maxLines: 1,
+                 style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -221,7 +235,6 @@ Widget buildOrderRow(
     ),
   );
 }
-
 //Метод для создания заказа с showMenu
 Widget buildQuantityField(
     BuildContext context,

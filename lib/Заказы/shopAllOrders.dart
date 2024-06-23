@@ -9,7 +9,7 @@ import 'package:shop_apllication_1/modals/getProductModal.dart';
 import '../modals/getZakaz.dart';
 
 class ShopAllOrders extends StatefulWidget {
-   final String token;
+  final String token;
 
   const ShopAllOrders({Key? key, required this.token}) : super(key: key);
 
@@ -18,26 +18,27 @@ class ShopAllOrders extends StatefulWidget {
 }
 
 class _ShopAllOrdersState extends State<ShopAllOrders> {
-  late String _token;
   List<GetZakaz> listGetZakaz = [];
   List<GetProduct> getProduct = [];
 
   @override
   void initState() {
     super.initState();
-    _token = widget.token;
+    token = widget.token;
     getZakaz();
     getProductList();
   }
+
   void clearTextFields() {
-  zakazModelController.clear();
-  zakazSizeController.clear();
-  zakazColorController.clear();
-  zakazQuantityController.clear();
-  zakazUnitController.clear();
-  zakazSellingpriceController.clear();
-  zakazCommentController.clear();
-}
+    zakazModelController.clear();
+    zakazSizeController.clear();
+    zakazColorController.clear();
+    zakazQuantityController.clear();
+    zakazUnitController.clear();
+    zakazSellingpriceController.clear();
+    zakazCommentController.clear();
+  }
+
   void _selectQuantityOption(String value) {
     setState(() {
       zakazModelController.text = value;
@@ -57,7 +58,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
       }
 
       final response = await http.post(
-        Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz'),
+        Uri.parse(
+            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "bin": binClient,
@@ -74,7 +76,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
 
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
-        _token = responseBody['token'] ?? '';
+        token = responseBody['token'] ?? '';
         AddZakaz addZakaz = AddZakaz.fromJson(responseBody);
         addZakaz.zakazModel = zakazModelController.text;
         addZakaz.zakazSize = zakazSizeController.text;
@@ -84,16 +86,13 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
         addZakaz.zakazUnit = zakazUnitController.text;
         addZakaz.zakazSellingprice = zakazSellingprice;
 
-        if (_token.isNotEmpty) {
-          Map<String, dynamic> payload = Jwt.parseJwt(_token);
+        if (token!.isNotEmpty) {
+          Map<String, dynamic> payload = Jwt.parseJwt(token!);
           String? _bin = payload['bin'];
           String? _manufacturerIndustry = payload['manufacturerIndustry'];
           addZakaz.bin = _bin ?? '';
           addZakaz.manufacturerIndustry = _manufacturerIndustry ?? '';
-        }
-
-        // Обновление списка заказов после добавления нового
-        getZakaz();
+        } getZakaz();
       } else {
         print('Ошибка при добавлении заказа: ${response.statusCode}');
       }
@@ -101,36 +100,34 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
       print('Ошибка: $e');
     }
   }
+static String? _token = token;
+Future<void> getZakaz() async {
+  
+  try {
+    print('token getZakaz: $_token');
+    final response = await http.get(
+      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/all'),
+      headers: {'Authorization': 'Bearer ${widget.token}'}, // Используем сохраненный токен
+    );
 
-  List<String> zakazModels = [];
-  Future<void> getZakaz() async {
-    try {
-      final response =
-          await http.get(Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/all'));
-      if (response.statusCode == 200) {
-        final List<dynamic> responseBody = jsonDecode(response.body);
-        List<GetZakaz> fetchedZakaz =
-            responseBody.map((data) => GetZakaz.fromJson(data)).toList();
-        setState(() {
-          listGetZakaz = fetchedZakaz;
-        });
-        // Извлекаем только модели из заказов
-        zakazModels =
-            fetchedZakaz.map((zakaz) => zakaz.zakazModel ?? '').toList();
-
-        print(zakazModels);
-        print(listGetZakaz);
-      } else {
-        print('Ошибка при получении заказов: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Ошибка: $e');
+    if (response.statusCode == 200) {
+      final List<dynamic> responseBody = jsonDecode(response.body);
+      List<GetZakaz> fetchedZakaz = responseBody.map((data) => GetZakaz.fromJson(data)).toList();
+      setState(() {
+        listGetZakaz = fetchedZakaz.where((zakaz) => zakaz.bin == binClient).toList();
+      });
+    } else {
+      print('Ошибка при получении заказов: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Ошибка: $e');
   }
-
+}
   Future<void> deleteZakaz(String id) async {
-    var request =
-        http.Request('DELETE', Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/$id'));
+    var request = http.Request(
+        'DELETE',
+        Uri.parse(
+            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/$id'));
     final response = await request.send();
     if (response.statusCode == 200) {
       getZakaz();
@@ -143,9 +140,13 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
   Map<String, int> productAvailability = {};
 
   Future<void> getProductList() async {
-    final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
+    final url =
+        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
+        
     print('Fetching products from: $url');
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url),
+          headers: {'Authorization': 'Bearer ${widget.token}'}, // Используем сохраненный токен
+    );
     if (response.statusCode == 200) {
       List<dynamic> responseBody = jsonDecode(response.body);
 
@@ -166,11 +167,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     }
   }
 
-
-
-
-
-  Future<bool?> _confirmDismiss(BuildContext context, int index, GetZakaz zakaz) async {
+  Future<bool?> _confirmDismiss(
+      BuildContext context, int index, GetZakaz zakaz) async {
     bool? confirmDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -190,29 +188,21 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
         );
       },
     );
-
     if (confirmDelete == true) {
       deleteZakaz(zakaz.sId ?? '');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Заказ ${zakaz.zakazModel} удален')),
       );
-    } else {
-      setState(() {
-        // Перестраиваем виджет для отмены удаления
-      });
     }
   }
- 
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Center(
-            child: Text(
-          'Заказы',
-          style: textH1,
-        )),
+        title: Text('Заказы', style: textH1),
+        centerTitle: true, // Центрирование заголовка
       ),
       body: ListView.builder(
         itemCount: listGetZakaz.length,
@@ -221,7 +211,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
           return Dismissible(
             key: Key(takeListZakaz.sId!),
             direction: DismissDirection.endToStart,
-            confirmDismiss: (direction) => _confirmDismiss(context, index, takeListZakaz),
+            confirmDismiss: (direction) =>
+                _confirmDismiss(context, index, takeListZakaz),
             background: Container(
               color: Colors.red,
               alignment: Alignment.centerRight,
@@ -234,8 +225,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
             child: buildOrderRow(
               context,
               takeListZakaz.sId ?? '',
-              binClient ?? '',
-              manufacturerIndustryName ?? '',
+              takeListZakaz.bin ?? '',
+              takeListZakaz.manufacturerIndustry ?? '',
               takeListZakaz.zakazID ?? 0,
               takeListZakaz.zakazModel ?? '',
               takeListZakaz.zakazSize ?? ' ',
@@ -248,74 +239,75 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
           );
         },
       ),
-      floatingActionButton: buildAddButton(
-        context,
-        () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                child: Stack(children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width *
-                        0.9, // 90% of screen width
-                    height: MediaQuery.of(context).size.height *
-                        0.65, // 60% of screen height
-                    padding: EdgeInsets.all(16.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+      floatingActionButton: role ==
+              'WarehouseAdmin' // Проверяем роль для отображения кнопки
+          ? FloatingActionButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      child: Stack(
                         children: [
-                          SizedBox(height: 20),
-                          Center(
-                            child: Text('Добавить заказ', style: textH1),
+                          Container(
+                            width: MediaQuery.of(context).size.width *
+                                0.9, // 90% of screen width
+                            height: MediaQuery.of(context).size.height *
+                                0.65, // 60% of screen height
+                            padding: EdgeInsets.all(16.0),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(height: 20),
+                                  Center(
+                                    child:
+                                        Text('Добавить заказ', style: textH1),
+                                  ),
+                                  Text(manufacturerIndustryName!),
+                                  buildQuantityField(context,zakazModelController,_selectQuantityOption,modalProduct),
+                                  buildTextFormField('Размер', zakazSizeController),
+                                  buildTextFormField('Цвет', zakazColorController),
+                                  buildTextFormField('Количество', zakazQuantityController),
+                                  buildTextFormField('Единица измерения', zakazUnitController),
+                                  buildTextFormField('Цена для продажи',zakazSellingpriceController),
+                                  buildTextFormField('Комментарий', zakazCommentController),
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        await _addZakaz(); // Добавить заказ
+                                        Navigator.of(context).pop();
+                                        await getZakaz();
+                                      },
+                                      child: Text('Добавить'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          Text(manufacturerIndustryName),
-                          buildQuantityField(context, zakazModelController,
-                              _selectQuantityOption, modalProduct),
-                          buildTextFormField('Размер', zakazSizeController),
-                          buildTextFormField('Цвет', zakazColorController),
-                          buildTextFormField(
-                              'Количеств', zakazQuantityController),
-                          buildTextFormField(
-                              'Единица измерения', zakazUnitController),
-                          buildTextFormField(
-                              'Цена для продажи', zakazSellingpriceController),
-                          buildTextFormField(
-                              'Комментарий', zakazCommentController),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await _addZakaz(); // Добавить заказ
+                          Positioned(
+                            right: 0.0,
+                            top: 0.0,
+                            child: IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
                                 Navigator.of(context)
-                                    .pop(); // Закрыть диалог после добавления
-                                await getZakaz(); // Обновить список заказов
+                                    .pop(); // Закрыть диалоговое окно
+                                clearTextFields();
                               },
-                              child: Text('Добавить'),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                            Positioned(
-            right: 0.0,
-            top: 0.0,
-            child: IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop(); // Закрыть диалоговое окно
-                clearTextFields();
+                    );
+                  },
+                );
               },
-            ),
-          ),
-                ]),
-              );
-            },
-          );
-        },
-      ),
+              child: Icon(Icons.add),
+            )
+          : null,
     );
   }
 }
