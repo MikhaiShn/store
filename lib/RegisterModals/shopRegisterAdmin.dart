@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shop_apllication_1/RegisterModals/storeRegisterAdminModal.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:shop_apllication_1/RegisterModals/storeRegisterAdminModal.dart';class RegistrationAdmin extends StatefulWidget {
+class RegistrationAdmin extends StatefulWidget {
   const RegistrationAdmin({super.key});
 
   @override

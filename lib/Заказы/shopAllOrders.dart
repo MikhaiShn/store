@@ -5,13 +5,14 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shop_apllication_1/modals/addZakazModal.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/modals/getProductModal.dart';
-
-import '../modals/getZakaz.dart';
+import '../modals/zakazModal.dart';
 
 class ShopAllOrders extends StatefulWidget {
   final String token;
-
-  const ShopAllOrders({Key? key, required this.token}) : super(key: key);
+  const ShopAllOrders({
+    Key? key,
+    required this.token,
+  }) : super(key: key);
 
   @override
   State<ShopAllOrders> createState() => _ShopAllOrdersState();
@@ -20,7 +21,9 @@ class ShopAllOrders extends StatefulWidget {
 class _ShopAllOrdersState extends State<ShopAllOrders> {
   List<GetZakaz> listGetZakaz = [];
   List<GetProduct> getProduct = [];
-
+  Map<String, int> productAvailability = {};
+  String? status;
+  String? sId;
   @override
   void initState() {
     super.initState();
@@ -64,6 +67,9 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
         body: jsonEncode({
           "bin": binClient,
           "manufacturerIndustry": manufacturerIndustryName,
+          "binPokupatel": binPokupatel.text,
+          "namePokupatel": namePokupatel.text,
+          "contactPokupatel": contactPokupatel.text,
           "zakazModel": zakazModelController.text,
           "zakazSize": zakazSizeController.text,
           "zakazColor": zakazColorController.text,
@@ -92,7 +98,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
           String? _manufacturerIndustry = payload['manufacturerIndustry'];
           addZakaz.bin = _bin ?? '';
           addZakaz.manufacturerIndustry = _manufacturerIndustry ?? '';
-        } getZakaz();
+        }
+        getZakaz();
       } else {
         print('Ошибка при добавлении заказа: ${response.statusCode}');
       }
@@ -100,29 +107,35 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
       print('Ошибка: $e');
     }
   }
-static String? _token = token;
-Future<void> getZakaz() async {
-  
-  try {
-    print('token getZakaz: $_token');
-    final response = await http.get(
-      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/all'),
-      headers: {'Authorization': 'Bearer ${widget.token}'}, // Используем сохраненный токен
-    );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> responseBody = jsonDecode(response.body);
-      List<GetZakaz> fetchedZakaz = responseBody.map((data) => GetZakaz.fromJson(data)).toList();
-      setState(() {
-        listGetZakaz = fetchedZakaz.where((zakaz) => zakaz.bin == binClient).toList();
-      });
-    } else {
-      print('Ошибка при получении заказов: ${response.statusCode}');
+  static String? _token = token;
+  Future<void> getZakaz() async {
+    try {
+      print('token getZakaz: $_token');
+      final response = await http.get(
+        Uri.parse(
+            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/all'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}'
+        }, // Используем сохраненный токен
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseBody = jsonDecode(response.body);
+        List<GetZakaz> fetchedZakaz =
+            responseBody.map((data) => GetZakaz.fromJson(data)).toList();
+        setState(() {
+          listGetZakaz =
+              fetchedZakaz.where((zakaz) => zakaz.bin == binClient).toList();
+        });
+      } else {
+        print('Ошибка при получении заказов: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Ошибка: $e');
     }
-  } catch (e) {
-    print('Ошибка: $e');
   }
-}
+
   Future<void> deleteZakaz(String id) async {
     var request = http.Request(
         'DELETE',
@@ -137,15 +150,37 @@ Future<void> getZakaz() async {
     }
   }
 
-  Map<String, int> productAvailability = {};
+  Future<void> updateZakaz(String zakazID) async {
+    final response = await http.patch(
+      Uri.parse(
+          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz/$zakazID/status'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "status": 'Complete',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      GetZakaz getZakaz = GetZakaz.fromJson(jsonDecode(response.body));
+      print('Статус заказа успешно обновлен');
+      print('Ответ сервера: ${response.statusCode}');
+    } else {
+      print('Ошибка при обновлении статуса заказа: ${response.statusCode}');
+    }
+  }
 
   Future<void> getProductList() async {
     final url =
         'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
-        
+
     print('Fetching products from: $url');
-    final response = await http.get(Uri.parse(url),
-          headers: {'Authorization': 'Bearer ${widget.token}'}, // Используем сохраненный токен
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}'
+      }, // Используем сохраненный токен
     );
     if (response.statusCode == 200) {
       List<dynamic> responseBody = jsonDecode(response.body);
@@ -224,9 +259,11 @@ Future<void> getZakaz() async {
             ),
             child: buildOrderRow(
               context,
-              takeListZakaz.sId ?? '',
               takeListZakaz.bin ?? '',
               takeListZakaz.manufacturerIndustry ?? '',
+              takeListZakaz.binPokupatel ?? '',
+              takeListZakaz.namePokupatel ?? '',
+              takeListZakaz.contactPokupatel ?? '',
               takeListZakaz.zakazID ?? 0,
               takeListZakaz.zakazModel ?? '',
               takeListZakaz.zakazSize ?? ' ',
@@ -235,6 +272,9 @@ Future<void> getZakaz() async {
               takeListZakaz.zakazQuantity ?? 0,
               productAvailability[takeListZakaz.zakazModel] ?? 0,
               (id) => deleteZakaz(id),
+              takeListZakaz.sId!,
+              updateZakaz,
+              takeListZakaz.status!,
             ),
           );
         },
@@ -265,13 +305,23 @@ Future<void> getZakaz() async {
                                         Text('Добавить заказ', style: textH1),
                                   ),
                                   Text(manufacturerIndustryName!),
-                                  buildQuantityField(context,zakazModelController,_selectQuantityOption,modalProduct),
-                                  buildTextFormField('Размер', zakazSizeController),
-                                  buildTextFormField('Цвет', zakazColorController),
-                                  buildTextFormField('Количество', zakazQuantityController),
-                                  buildTextFormField('Единица измерения', zakazUnitController),
-                                  buildTextFormField('Цена для продажи',zakazSellingpriceController),
-                                  buildTextFormField('Комментарий', zakazCommentController),
+                                  buildQuantityField(
+                                      context,
+                                      zakazModelController,
+                                      _selectQuantityOption,
+                                      modalProduct),
+                                  buildTextFormField(
+                                      'Размер', zakazSizeController),
+                                  buildTextFormField(
+                                      'Цвет', zakazColorController),
+                                  buildTextFormField(
+                                      'Количество', zakazQuantityController),
+                                  buildTextFormField(
+                                      'Единица измерения', zakazUnitController),
+                                  buildTextFormField('Цена для продажи',
+                                      zakazSellingpriceController),
+                                  buildTextFormField(
+                                      'Комментарий', zakazCommentController),
                                   Align(
                                     alignment: Alignment.bottomCenter,
                                     child: ElevatedButton(

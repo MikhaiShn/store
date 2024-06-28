@@ -62,11 +62,11 @@ void _logout() {
   print('token logout: $token');
   print('role: $role');
   print('bin: $binClient');
-
+  
   // Перенаправляем пользователя на экран входа или другой начальный экран
-  // Navigator.pushReplacement(
-  //   context,
-  //   // MaterialPageRoute(builder: (context) => ShopLogIn(prefs: null,)),
-  // );
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => ShopLogIn()),
+  );
 }
 }

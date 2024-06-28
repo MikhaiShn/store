@@ -4,7 +4,7 @@
 // import 'package:shop_apllication_1/globals%20(%D0%A4%D0%B0%D0%B9%D0%BB%20%D0%B4%D0%BB%D1%8F%20%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%BE%D0%B2).dart';
 // import 'package:http/http.dart' as http;
 
-// class RegistrationManager extends StatefulWidget {
+//  {
 //   const RegistrationManager({super.key});
 
 //   @override

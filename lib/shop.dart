@@ -33,8 +33,8 @@ class _ShopState extends State<Shop> {
         children: [
           ShopHome(),
           ShopJournal(),
-          ShopMaterials(),
-          ShopTMZ(),
+          ShopMaterials(token: token),
+          ShopTMZ(token: token!,),
           ShopMenu(),
         ],
       ),
