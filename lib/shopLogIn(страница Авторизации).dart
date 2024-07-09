@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shop_apllication_1/globals.dart';
@@ -7,8 +6,6 @@ import 'package:shop_apllication_1/shop.dart';
 export 'package:shop_apllication_1/modals/AuthModal.dart';
 import 'package:http/http.dart' as http;
 
-import 'Заказы/shopAllOrders.dart';
-import 'Заказы/shopAllOrdersManager.dart';
 
 class ShopLogIn extends StatefulWidget {
   const ShopLogIn({Key? key}) : super(key: key);

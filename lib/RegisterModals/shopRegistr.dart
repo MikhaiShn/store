@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 //import 'package:shop_apllication_1/shopLoginModal.dart';
 //import 'package:shop_apllication_1/shopLoginModal.dart';
 
@@ -28,15 +27,15 @@ class _ShopRegisterState extends State<ShopRegister> {
   Color greyTransparentColor = Color.fromRGBO(128, 128, 128, 0.5);
   File? photo;
 
-  Future<void> _pickImageFromGallery() async {
-    ImagePicker imagePicker = ImagePicker();
-    XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        photo = File(image.path);
-      });
-    }
-  }
+  // Future<void> _pickImageFromGallery() async {
+  //   ImagePicker imagePicker = ImagePicker();
+  //   XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+  //   if (image != null) {
+  //     setState(() {
+  //       photo = File(image.path);
+  //     });
+  //   }
+  // }
 
   Widget buildTextFormField(
       String labelText, TextEditingController controller) {

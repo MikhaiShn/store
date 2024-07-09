@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/modals/getProductModal.dart';
+import 'package:shop_apllication_1/modals/productModal.dart';
 
 import 'globals.dart';
 
@@ -13,7 +13,7 @@ class ShopProduct extends StatefulWidget {
 }
 
 class _ShopProductState extends State<ShopProduct> {
-  List<GetProduct> finishedProduct = [];
+  List<ProductModal> finishedProduct = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -37,7 +37,7 @@ class _ShopProductState extends State<ShopProduct> {
       if (response.statusCode == 200) {
         List<dynamic> responseBody = jsonDecode(response.body);
         setState(() {
-          finishedProduct = responseBody.map((data) => GetProduct.fromJson(data)).toList();
+          finishedProduct = responseBody.map((data) => ProductModal.fromJson(data)).toList();
           isLoading = false;
           modalProduct = finishedProduct.map((product) => product.productName!).toList();
         });

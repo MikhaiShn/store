@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 export 'package:shop_apllication_1/globals.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shop_apllication_1/modals/zakazModal.dart';
 
 Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Color.fromARGB(255, 57, 86, 218).withOpacity(0.5);
@@ -27,16 +24,13 @@ TextEditingController zakazTotalSellingController = TextEditingController();
 TextEditingController zakazCommentController = TextEditingController();
 TextEditingController zakazBinController = TextEditingController();
 TextEditingController zakazManufacturerController = TextEditingController();
-TextEditingController binPokupatel = TextEditingController();
-TextEditingController namePokupatel = TextEditingController();
-TextEditingController contactPokupatel = TextEditingController();
-
-
+TextEditingController binPokupatelController = TextEditingController();
+TextEditingController namePokupatelController = TextEditingController();
+TextEditingController contactPokupatelController = TextEditingController();
 
 //Сырьё
 TextEditingController itemRawNameController = TextEditingController();
-TextEditingController selerBINController = TextEditingController();
-TextEditingController selerRawContactController = TextEditingController();
+TextEditingController sellerRawBINController = TextEditingController();
 TextEditingController selerRawCountryController = TextEditingController();
 TextEditingController importController = TextEditingController();
 TextEditingController codeitemController = TextEditingController();
@@ -52,6 +46,8 @@ TextEditingController rawUnitController = TextEditingController();
 TextEditingController rawPurchasepriceController = TextEditingController();
 TextEditingController rawSellingpriceController = TextEditingController();
 TextEditingController rawGroupNameController = TextEditingController();
+TextEditingController selerRawContactController = TextEditingController();
+TextEditingController newRawGroupController = TextEditingController();
 
 //ТМЗ
 TextEditingController tmzIDController = TextEditingController();
@@ -72,8 +68,8 @@ TextEditingController tmzUnitController = TextEditingController();
 TextEditingController tmzPurchasepriceController = TextEditingController();
 TextEditingController tmzSellingpriceController = TextEditingController();
 
-TextEditingController tmzGroupNameController = TextEditingController(); // Assuming this is for _id
-
+TextEditingController tmzGroupNameController =
+    TextEditingController(); // Assuming this is for _id
 
 int index = -1;
 String getModal = ' ';
@@ -167,19 +163,20 @@ Widget buildAddButton(BuildContext context, VoidCallback onPressedCallback) {
   );
 }
 
-//Метод для создании контейнера при нажатии которого будет доступ к галерее
-Future<void> pickImageFromGallery(
-    void Function(void Function()) setStateCallback) async {
-  ImagePicker imagePicker = ImagePicker();
-  XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-  if (image != null) {
-    setStateCallback(() {
-      photo = File(image.path);
-    });
-  }
-}
+// //Метод для создании контейнера при нажатии которого будет доступ к галерее
+// Future<void> pickImageFromGallery(
+//     void Function(void Function()) setStateCallback) async {
+//   ImagePicker imagePicker = ImagePicker();
+//   XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+//   if (image != null) {
+//     setStateCallback(() {
+//       photo = File(image.path);
+//     });
+//   }
+// }
 
 //Метод для создания заказа
+
 Widget buildOrderRow(
   BuildContext context,
   String namePokupatel,
@@ -195,9 +192,10 @@ Widget buildOrderRow(
   int quantity,
   int productAvailability,
   Function(String) onDelete,
-  String id,
-  Function(String) updateZakaz,
+  String sId,
+  Function(String) updateStatus,
   String status,
+  Function(String) updateZakaz,
 ) {
   return GestureDetector(
     onTap: () {
@@ -208,39 +206,125 @@ Widget buildOrderRow(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 20),
-                    Text('БИН Организации: $bin', style: textH2),
-                    Text('Название организации: $manufacturerName', style: textH2),
-                    Text('Бин покупателя: $binPokupatel'),
-                    Text('Название покупателя $namePokupatel'),
-                    Text('Контакты покупателя $contactPokupatel'),
-                    Text('Номер заказа: $zakazID', style: textH2),
-                    Text('Модель: $model', style: textH2),
-                    Text('Размер: $size', style: textH2),
-                    Text('Цвет: $colorZakaz', style: textH2),
-                    Text('Количество: $quantity', style: textH2),
-                    Text('Стоимость: $sellingPrice', style: textH2),
-                    Text('id: $id'),
-                    Text('Статус $status'),
-                    ElevatedButton(
-                      onPressed: () {
-                        updateZakaz(id);  
-                        Navigator.of(context).pop(); // Закрытие диалога после обновления
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      child: Text('Выполнено'),
-                    )
-                  ],
+            child: Stack(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 20),
+                        Text('БИН Организации: $binClient',style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Название организации: $manufacturerIndustryName',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Бин покупателя: $binPokupatel'),
+                        Text('Название покупателя $namePokupatel'),
+                        Text('Контакты покупателя $contactPokupatel'),
+                        Text('Номер заказа: $zakazID',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Модель: $model',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Размер: $size',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Цвет: $colorZakaz',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Количество: $quantity',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Стоимость: $sellingPrice',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('id: $sId'),
+                        Text('Статус $status'),
+                        ElevatedButton(
+                          onPressed: () {
+                            updateStatus(sId);
+                            Navigator.of(context)
+                                .pop(); // Закрытие диалога после обновления
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green),
+                          child: Text('Выполнено'),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    icon: Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () {
+                      // Действие по нажатию на иконку
+                      // Можно открыть другой диалог для редактирования
+                      Navigator.of(context).pop(); // Закрытие текущего диалога
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: SingleChildScrollView(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: MediaQuery.of(context).size.height * 0.7,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      buildTextFormField(
+                                          'Модель заказа', zakazModelController),
+                                      buildTextFormField(
+                                          'Размер', zakazSizeController),
+                                      buildTextFormField(
+                                          'Цвет', zakazColorController),
+                                      buildTextFormField(
+                                          'Количество', zakazQuantityController),
+                                      buildTextFormField('Единица измерения',
+                                          zakazUnitController),
+                                      buildTextFormField('Цена продажи',
+                                          zakazSellingpriceController),
+                                      buildTextFormField(
+                                          'Комментарии', zakazCommentController),
+                                      Text('Редактировать заказ',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold)),
+                                      // Здесь добавьте поля для редактирования заказа
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          updateZakaz(sId);
+                                          Navigator.of(context)
+                                              .pop(); // Закрытие диалога после обновления
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green),
+                                        child: Text('Сохранить изменения'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -267,14 +351,16 @@ Widget buildOrderRow(
         children: [
           Text(
             'Номер заказа: $zakazID',
-            style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
             softWrap: true,
           ),
           SizedBox(height: 4),
           Text(
             'Модель: $model',
-            style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
             softWrap: true,
           ),
@@ -283,14 +369,20 @@ Widget buildOrderRow(
             children: [
               Text(
                 'На складе: $productAvailability',
-                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Spacer(),
               Text(
                 'Нужное кол-во: $quantity шт',
-                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
             ],

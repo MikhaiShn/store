@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shop.dart';
+import 'package:shop_apllication_1/shopCalculation.dart';
 import 'package:shop_apllication_1/shopProductManager.dart';
-
 import 'Заказы/shopAllOrders.dart';
 
 class ShopHome extends StatefulWidget {
@@ -51,11 +48,10 @@ class _ShopHomeState extends State<ShopHome> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          buildIcon(
-                              Icons.assignment, "Заказы", Colors.green, 30,ShopAllOrders(token: token!),context),
-                              buildIcon(
-                              Icons.check_box, "   Готовая\nпродукция", Colors.green, 30,ShopProductManager(),context),
-                              buildIcon(Icons.add_alert, 'Сырьё', Colors.green, 30, ShopMaterials(token: token), context)
+                          buildIcon(Icons.assignment, "Заказы", Colors.green, 30,ShopAllOrders(token: token!),context),
+                          buildIcon(Icons.check_box, "   Готовая\nпродукция", Colors.green, 30,ShopProductManager(),context),
+                          buildIcon(Icons.add_alert, 'Сырьё', Colors.green, 30, ShopMaterials(token: token), context),
+                          buildIcon(Icons.calculate, "Калькуляция", Colors.green, 30, ShopCalculation(token: token!), context)
                         ],
                       ),
                     ],

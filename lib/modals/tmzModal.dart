@@ -1,10 +1,35 @@
 import 'dart:convert';
 
+class TMZGroup {
+  String id;
+  String groupName;
+  List<TMZModal> tmzList;
+
+  TMZGroup({
+    required this.id,
+    required this.groupName,
+    required this.tmzList,
+  });
+
+  factory TMZGroup.fromJson(Map<String, dynamic> json) => TMZGroup(
+        id: json["_id"],
+        groupName: json["groupName"],
+        tmzList: List<TMZModal>.from(json["tmzList"].map((x) => TMZModal.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "_id": id,
+        "groupName": groupName,
+        "tmzList": List<dynamic>.from(tmzList.map((x) => x.toJson())),
+      };
+}
+
 List<TMZModal> tmzModalFromJson(String str) =>
     List<TMZModal>.from(json.decode(str).map((x) => TMZModal.fromJson(x)));
 
 String tmzModalToJson(List<TMZModal> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 
 class TMZModal {
   String id;
@@ -138,3 +163,5 @@ class MaterialTmz {
         "_id": id,
       };
 }
+
+

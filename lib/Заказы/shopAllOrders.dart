@@ -1,10 +1,9 @@
-import 'dart:convert';
+  import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:shop_apllication_1/modals/addZakazModal.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/modals/getProductModal.dart';
+import 'package:shop_apllication_1/modals/productModal.dart';
 import '../modals/zakazModal.dart';
 
 class ShopAllOrders extends StatefulWidget {
@@ -19,8 +18,8 @@ class ShopAllOrders extends StatefulWidget {
 }
 
 class _ShopAllOrdersState extends State<ShopAllOrders> {
-  List<GetZakaz> listGetZakaz = [];
-  List<GetProduct> getProduct = [];
+  List<ZakazModal> listGetZakaz = [];
+  List<ProductModal> getProduct = [];
   Map<String, int> productAvailability = {};
   String? status;
   String? sId;
@@ -67,9 +66,9 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
         body: jsonEncode({
           "bin": binClient,
           "manufacturerIndustry": manufacturerIndustryName,
-          "binPokupatel": binPokupatel.text,
-          "namePokupatel": namePokupatel.text,
-          "contactPokupatel": contactPokupatel.text,
+          "binPokupatel": binPokupatelController.text,
+          "namePokupatel": namePokupatelController.text,
+          "contactPokupatel": contactPokupatelController.text,
           "zakazModel": zakazModelController.text,
           "zakazSize": zakazSizeController.text,
           "zakazColor": zakazColorController.text,
@@ -83,7 +82,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
         token = responseBody['token'] ?? '';
-        AddZakaz addZakaz = AddZakaz.fromJson(responseBody);
+        ZakazModal addZakaz = ZakazModal.fromJson(responseBody);
         addZakaz.zakazModel = zakazModelController.text;
         addZakaz.zakazSize = zakazSizeController.text;
         addZakaz.zakazColor = zakazColorController.text;
@@ -122,8 +121,8 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
 
       if (response.statusCode == 200) {
         final List<dynamic> responseBody = jsonDecode(response.body);
-        List<GetZakaz> fetchedZakaz =
-            responseBody.map((data) => GetZakaz.fromJson(data)).toList();
+        List<ZakazModal> fetchedZakaz =
+            responseBody.map((data) => ZakazModal.fromJson(data)).toList();
         setState(() {
           listGetZakaz =
               fetchedZakaz.where((zakaz) => zakaz.bin == binClient).toList();
@@ -150,7 +149,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     }
   }
 
-  Future<void> updateZakaz(String zakazID) async {
+  Future<void> updateStatus(String zakazID) async {
     final response = await http.patch(
       Uri.parse(
           'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz/$zakazID/status'),
@@ -163,7 +162,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     );
 
     if (response.statusCode == 200) {
-      GetZakaz getZakaz = GetZakaz.fromJson(jsonDecode(response.body));
+      ZakazModal getZakaz = ZakazModal.fromJson(jsonDecode(response.body));
       print('Статус заказа успешно обновлен');
       print('Ответ сервера: ${response.statusCode}');
     } else {
@@ -187,7 +186,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
 
       setState(() {
         getProduct =
-            responseBody.map((data) => GetProduct.fromJson(data)).toList();
+            responseBody.map((data) => ProductModal.fromJson(data)).toList();
         modalProduct =
             getProduct.map((product) => product.productName!).toList();
         quantityProduct =
@@ -203,7 +202,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
   }
 
   Future<bool?> _confirmDismiss(
-      BuildContext context, int index, GetZakaz zakaz) async {
+      BuildContext context, int index, ZakazModal zakaz) async {
     bool? confirmDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -230,6 +229,31 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
       );
     }
   }
+ 
+Future<void> updateZakaz(String id) async {
+  print('Updating zakaz with ID: $id'); // Логирование ID заказа
+  final response = await http.put(
+    Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz/$id'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      "zakazModel": zakazModelController.text,
+      "zakazSize": zakazSizeController.text,
+      "zakazColor": zakazColorController.text,
+      "zakazQuantity": int.parse(zakazQuantityController.text),
+      "zakazUnit": zakazUnitController.text,
+      "zakazSellingprice": int.parse(zakazSellingpriceController.text),
+      "zakazComment": zakazCommentController.text,
+    }),
+  );
+  print(id);
+  if (response.statusCode == 200) {
+    getZakaz();
+  } else {
+    print('Ошибка при изменении заказа: ${response.statusCode}');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -257,24 +281,78 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
                 color: Colors.white,
               ),
             ),
-            child: buildOrderRow(
-              context,
-              takeListZakaz.bin ?? '',
-              takeListZakaz.manufacturerIndustry ?? '',
-              takeListZakaz.binPokupatel ?? '',
-              takeListZakaz.namePokupatel ?? '',
-              takeListZakaz.contactPokupatel ?? '',
-              takeListZakaz.zakazID ?? 0,
-              takeListZakaz.zakazModel ?? '',
-              takeListZakaz.zakazSize ?? ' ',
-              takeListZakaz.zakazColor ?? '',
-              takeListZakaz.zakazSellingprice ?? 0,
-              takeListZakaz.zakazQuantity ?? 0,
-              productAvailability[takeListZakaz.zakazModel] ?? 0,
-              (id) => deleteZakaz(id),
-              takeListZakaz.sId!,
-              updateZakaz,
-              takeListZakaz.status!,
+            child: GestureDetector(
+              onDoubleTap: () {
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    icon: Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Закрытие текущего диалога
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildTextFormField('Модель заказа', zakazModelController),
+                                    buildTextFormField('Размер', zakazSizeController),
+                                    buildTextFormField('Цвет', zakazColorController),
+                                    buildTextFormField('Количество', zakazQuantityController),
+                                    buildTextFormField('Единица измерения', zakazUnitController),
+                                    buildTextFormField('Цена продажи', zakazSellingpriceController),
+                                    buildTextFormField('Комментарии', zakazCommentController),
+                                    Text('Редактировать заказ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    // Здесь добавьте поля для редактирования заказа
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        updateZakaz(takeListZakaz.sId!);
+                                        Navigator.of(context).pop(); // Закрытие диалога после обновления
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                      child: Text('Сохранить изменения'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
+              child: buildOrderRow(
+                context,
+                takeListZakaz.namePokupatel ?? '',
+                takeListZakaz.contactPokupatel ?? '',
+                takeListZakaz.binPokupatel ?? '',
+                binClient!,
+                manufacturerIndustryName!,
+                takeListZakaz.zakazID ?? 0,
+                takeListZakaz.zakazModel ?? '',
+                takeListZakaz.zakazSize ?? ' ',
+                takeListZakaz.zakazColor ?? '',
+                takeListZakaz.zakazSellingprice ?? 0,
+                takeListZakaz.zakazQuantity ?? 0,
+                productAvailability[takeListZakaz.zakazModel] ?? 0,
+                (id) => deleteZakaz(id),
+                takeListZakaz.sId!,
+                updateStatus,
+                takeListZakaz.status!,
+                updateZakaz,
+              ),
             ),
           );
         },
@@ -305,6 +383,9 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
                                         Text('Добавить заказ', style: textH1),
                                   ),
                                   Text(manufacturerIndustryName!),
+                                  buildTextFormField('БИН покупателя', binPokupatelController),
+                                  buildTextFormField('Названия покупателя', namePokupatelController),
+                                  buildTextFormField('Контакты покупателя', contactPokupatelController),
                                   buildQuantityField(
                                       context,
                                       zakazModelController,

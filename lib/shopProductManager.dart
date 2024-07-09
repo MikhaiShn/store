@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/modals/getProductModal.dart';
+import 'package:shop_apllication_1/modals/productModal.dart';
 
 import 'globals.dart';
 
@@ -14,7 +14,7 @@ class ShopProductManager extends StatefulWidget {
 }
 
 class _ShopProductManagerState extends State<ShopProductManager> {
-  List<GetProduct> finishedProduct = [];
+  List<ProductModal> finishedProduct = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -45,7 +45,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
       if (response.statusCode == 200) {
         List<dynamic> responseBody = jsonDecode(response.body);
         setState(() {
-          finishedProduct = responseBody.map((data) => GetProduct.fromJson(data)).toList();
+          finishedProduct = responseBody.map((data) => ProductModal.fromJson(data)).toList();
           isLoading = false;
         });
         print('Successfully fetched products.');
@@ -104,7 +104,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
     }
   }
 
-  void showEditFieldDialog(GetProduct product, String field, String currentValue) {
+  void showEditFieldDialog(ProductModal product, String field, String currentValue) {
     TextEditingController controller = TextEditingController(text: currentValue);
 
     showDialog(
@@ -171,7 +171,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
     );
   }
 
-  void showProductDetails(GetProduct product) {
+  void showProductDetails(ProductModal product) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -424,7 +424,7 @@ class _ShopProductManagerState extends State<ShopProductManager> {
 }
 
 
-  Widget buildEditableText(String label, String value, GetProduct product) {
+  Widget buildEditableText(String label, String value, ProductModal product) {
     bool showEditIcon = false;
     String field = '';
 

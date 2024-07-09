@@ -1,4 +1,4 @@
-class GetProduct {
+class ProductModal {
   String? sId;
   String? bin;
   String? manufacturerIndustry;
@@ -20,7 +20,7 @@ class GetProduct {
   int? productTotalSelling;
   int? iV;
 
-  GetProduct(
+  ProductModal(
       {this.sId,
       this.bin,
       this.manufacturerIndustry,
@@ -42,7 +42,7 @@ class GetProduct {
       this.productTotalSelling,
       this.iV});
 
-  GetProduct.fromJson(Map<String, dynamic> json) {
+  ProductModal.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     bin = json['bin'];
     manufacturerIndustry = json['manufacturerIndustry'];

@@ -1,4 +1,4 @@
-class GetZakaz {
+class ZakazModal {
   String? sId;
   String? bin;
   String? manufacturerIndustry;
@@ -16,7 +16,7 @@ class GetZakaz {
   num? zakazTotalSelling; // Используйте num вместо int
   String? status;
 
-  GetZakaz(
+  ZakazModal(
       {this.sId,
       this.bin,
       this.manufacturerIndustry,
@@ -34,7 +34,7 @@ class GetZakaz {
       this.zakazTotalSelling,
       this.status});
 
-  GetZakaz.fromJson(Map<String, dynamic> json) {
+  ZakazModal.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     bin = json['bin'];
     manufacturerIndustry = json['manufacturerIndustry'];
