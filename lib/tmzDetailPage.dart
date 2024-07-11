@@ -8,16 +8,17 @@ import 'package:shop_apllication_1/globals.dart';
 
 class TmzDetail extends StatefulWidget {
   final String? groupName;
-  final String? keys;
   final String? token;
-  final List<MaterialTmz> material;
-
+  final List<Item> material;
+  final String? materialId;
+  final String? groupId;
   const TmzDetail({
     Key? key,
-    required this.keys,
     required this.token,
     required this.material,
     required this.groupName,
+    required this.groupId,
+    required this.materialId,
   }) : super(key: key);
 
   @override
@@ -25,152 +26,143 @@ class TmzDetail extends StatefulWidget {
 }
 
 class _TmzDetailState extends State<TmzDetail> {
-  List<TMZModal> tmzManufacturerClient = [];
+  List<TmzManufacturer> tmzManufacturerClient = [];
   bool _isLoading = false; // Флаг для отслеживания загрузки данных
-  String tmzID = ' ';
-//   List<TMZGroup> groupsTMZ = [];
-  Future<void> updateTMZInGroups() async {
-//   try {
-//     final response = await http.get(
-//       Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/'), // Замените на ваш URL для групп ТМЗ
-//       headers: {'Authorization': 'Bearer ${widget.token}'},
-//     );
-//     if (response.statusCode == 200) {
+  List<TMZMaterial> groupsTMZ = [];
+  List<Item> tmzMaterial = [];
 
-//       print('Данные групп успешно получены');
-//       print(response.statusCode);
-//       List<dynamic> groupsJson = jsonDecode(response.body);
-//       setState(() {
-//         // Обновление состояния групп ТМЗ
-//        TMZGroup groupsTMZ = groupsJson.map((json) => TMZGroup.fromJson(json)).toList();
-//       });
-//     } else {
-//       print('Ошибка при получении данных групп: ${response.statusCode}');
-//     }
-//   } catch (e) {
-//     print('Ошибка при запросе данных групп: $e');
-//   }
+ @override
+  void initState() {
+    super.initState();
+    getMaterialInTMZ();
   }
 
-Future<void> deleteTMZbyID(String id) async {
-  try {
-    final response = await http.delete(
-      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/delete/$binClient/${widget.groupName}/$id'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${widget.token}',
-      },
-    );
 
-    if (response.statusCode == 200) {
-      // Успешно удалено, обновляем состояние списка синхронно
-      setState(() {
-        widget.material.removeWhere((element) => element.tmzId == id);
-      });
-      print('Успешно удалено ТМЗ с id: $id из группы ${widget.groupName}');
-    } else {
-      print('Ошибка при удалении ТМЗ: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Ошибка при отправке запроса на удаление: $e');
-  }
-}
-
-
-
-  Future<void> _addTMZ() async {
+  Future<void> updateMaterialDetail(String idMaterial) async {
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/add'),
+            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
         },
         body: jsonEncode({
-          'bin': binClient ?? "",
-          'groupName': widget.keys ?? "",
-          'tmzMaterialData': {
-            "itemTmzName": itemTmzNameController.text.isNotEmpty
-                ? itemTmzNameController.text
-                : "",
-            "sellerBIN": sellerBINController.text.isNotEmpty
-                ? sellerBINController.text
-                : "",
-            "sellerTMZContact": sellerTMZContactController.text.isNotEmpty
-                ? sellerTMZContactController.text
-                : "",
-            "sellerTMZCountry": sellerTMZCountryController.text.isNotEmpty
-                ? sellerTMZCountryController.text
-                : "",
-            "codeitem": codeItemController.text.isNotEmpty
-                ? codeItemController.text
-                : "",
-            "tmzSezon": tmzSezonController.text.isNotEmpty
-                ? tmzSezonController.text
-                : "",
-            "tmzModel": tmzModelController.text.isNotEmpty
-                ? tmzModelController.text
-                : "",
-            "tmzComment": tmzCommentController.text.isNotEmpty
-                ? tmzCommentController.text
-                : "",
-            "tmzPerson": tmzPersonController.text.isNotEmpty
-                ? tmzPersonController.text
-                : "",
-            "tmzSize":
-                tmzSizeController.text.isNotEmpty ? tmzSizeController.text : "",
-            "tmzColor": tmzColorController.text.isNotEmpty
-                ? tmzColorController.text
-                : "",
-            "tmzExpiryDate": '2026-12-31T00:00:00.000Z',
-            "tmzQuantity": tmzQuantityController.text.isEmpty
-                ? 0
-                : int.parse(tmzQuantityController.text),
-            "tmzUnit":
-                tmzUnitController.text.isNotEmpty ? tmzUnitController.text : "",
-            "tmzPurchaseprice": tmzPurchasepriceController.text.isEmpty
-                ? 0
-                : int.parse(tmzPurchasepriceController.text),
-            "tmzSellingprice": tmzSellingpriceController.text.isEmpty
-                ? 0
-                : int.parse(tmzSellingpriceController.text),
-          },
+          "itemTmzName": itemTmzNameController.text,
+          "sellerBin": sellerTMZBINController.text,
+          "sellerTmzContact": sellerTMZContactController.text,
+          "sellerTmzCountry": sellerTMZCountryController.text,
+          "itemImport": tmzImportController.text.toLowerCase() == 'true',
+          "codeitem": tmzCodeItemController.text,
+          "tmzSezon": tmzSezonController.text,
+          "tmzModel": tmzModelController.text,
+          "tmzComment": tmzCommentController.text,
+          "tmzPerson": tmzPersonController.text,
+          "tmzSize": tmzSizeController.text,
+          "tmzColor": tmzColorController.text,
+          "tmzQuantity": int.parse(tmzQuantityController.text),
+          "tmzUnit": tmzUnitController.text,
+          "tmzPurchaseprice": int.parse(tmzPurchasepriceController.text),
+          "tmzSellingprice": int.parse(tmzSellingpriceController.text),
+          "tmzExpiryDate": '2001-02-01T00:00:00.000Z',
         }),
       );
 
-      if (response.statusCode == 201) {
-        final responseBody = jsonDecode(response.body);
-        MaterialTmz tmzModal = MaterialTmz.fromJson(responseBody);
-
-        setState(() {
-          widget.material.add(tmzModal);
-        });
-
-        // Вызов функции getTMZ после успешного добавления
-        await updateTMZInGroups();
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        print('Material details updated successfully');
+        getMaterialInTMZ();
       } else {
-        print('Ошибка при добавлении ТМЗ: ${response.statusCode}');
+        print('Failed to update material details: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Ошибка при отправке запроса: $e');
+    } catch (error) {
+      print('Error updating material details: $error');
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    updateTMZInGroups(); // Вызываем getTMZ() при инициализации страницы
+  Future<void> deleteTMZbyID(String idMaterial) async {
+    final response = await http.delete(Uri.parse(
+        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'));
+    if (response.statusCode == 200) {
+      print('Raw material deleted successfully');
+    } else {
+      print('Failed to delete raw material: ${response.statusCode}');
+    }
   }
+
+  Future<void> addTMZ() async {
+    try {
+      Item newItem = Item(
+        itemTmzName: itemTmzNameController.text,
+        sellerBin: sellerTMZBINController.text,
+        sellerTmzContact: sellerTMZContactController.text,
+        sellerTmzCountry: sellerTMZCountryController.text,
+        itemImport: tmzImportController.text.toLowerCase() == 'true',
+        codeitem: tmzCodeItemController.text,
+        tmzSezon: tmzSezonController.text,
+        tmzModel: tmzModelController.text,
+        tmzComment: tmzCommentController.text,
+        tmzPerson: tmzPersonController.text,
+        tmzSize: tmzSizeController.text,
+        tmzColor: tmzColorController.text,
+        tmzQuantity: int.parse(tmzQuantityController.text),
+        tmzUnit: tmzUnitController.text,
+        tmzPurchaseprice: int.parse(tmzPurchasepriceController.text),
+        tmzSellingprice: int.parse(tmzSellingpriceController.text),
+        tmzExpiryDate: '2001-02-01T00:00:00.000Z',
+        id: '',
+        tmzTotalPurchase: 0, // Replace with actual value if needed
+        tmzTotalSelling: 0, // Replace with actual value if needed
+      );
+      final response = await http.post(
+        Uri.parse(
+            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${widget.token}',
+        },
+        body: jsonEncode(newItem.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        print('New raw material added successfully');
+        setState(() {
+          widget.material.add(newItem); // Добавляем новый элемент в список
+        });
+      } else {
+        print('Failed to add raw material: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error adding raw material: $error');
+    }
+  }
+
+Future<void> getMaterialInTMZ() async {
+  final response = await http.get(Uri.parse(
+      'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'));
+  if (response.statusCode == 200) {
+    print('ТМЗ успешно получены в группе');
+    print('${widget.materialId}, ${widget.groupId}');
+    final List<dynamic> responseBody = jsonDecode(response.body);
+    print('Response Body: $responseBody');
+    List<Item> getListMaterial = responseBody
+        .map((data) => Item.fromJson(data as Map<String, dynamic>))
+        .toList();
+    setState(() {
+      tmzMaterial = getListMaterial;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.keys ?? ''),
+        title: Text(widget.groupName!),
       ),
       body: RefreshIndicator(
-        onRefresh: updateTMZInGroups, // Вызываем getTMZ при тяжении вниз
+        onRefresh: getMaterialInTMZ, // Вызываем getTMZ при тяжении вниз
         child: _isLoading
             ? Center(
                 child:
@@ -178,32 +170,131 @@ Future<void> deleteTMZbyID(String id) async {
             : ListView.builder(
                 itemCount: widget.material.length,
                 itemBuilder: (context, index) {
-                  MaterialTmz materialTmz = widget.material[index];
+                  Item materialTmz = tmzMaterial[index];
                   return Dismissible(
-                    key: Key(materialTmz.tmzId),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
-                      // Удаляем элемент из списка и вызываем setState для обновления состояния
-                      setState(() {
-                        widget.material.removeAt(index);
-                      });
-                      deleteTMZbyID(
-                          materialTmz.tmzId); // Удаление элемента по его tmzId
-                    },
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Icon(Icons.delete, color: Colors.white),
-                    ),
-                    child: GestureDetector(
-                      child: ListTile(
-                        title: Text(materialTmz.itemTmzName),
-                        subtitle: Text('Quantity: ${materialTmz.tmzQuantity}'),
-                        // Другие детали материала, которые хотите отобразить
+                      key: Key(materialTmz.id),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        // Удаляем элемент из списка и вызываем setState для обновления состояния
+                        setState(() {
+                          widget.material.removeAt(index);
+                        });
+                        deleteTMZbyID(
+                            materialTmz.id); // Удаление элемента по его tmzId
+                      },
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Icon(Icons.delete, color: Colors.white),
                       ),
-                    ),
-                  );
+                      child: Card(
+                        margin: EdgeInsets.all(10),
+                        child: ListTile(
+                          title: Text(materialTmz.tmzModel),
+                          subtitle: Text('Item code: ${materialTmz.codeitem}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                buildTextFormField(
+                                                    'Название ТМЗ',
+                                                    itemTmzNameController),
+                                                buildTextFormField(
+                                                    'БИН продавца',
+                                                    sellerTMZBINController),
+                                                buildTextFormField(
+                                                    'Контакт продавца',
+                                                    sellerTMZContactController),
+                                                buildTextFormField(
+                                                    'Страна продавца',
+                                                    sellerTMZCountryController),
+                                                buildTextFormField('Код товара',
+                                                    tmzCodeItemController),
+                                                buildTextFormField('Сезон ТМЗ',
+                                                    tmzSezonController),
+                                                buildTextFormField('Модель ТМЗ',
+                                                    tmzModelController),
+                                                buildTextFormField(
+                                                    'Комментарий к ТМЗ',
+                                                    tmzCommentController),
+                                                buildTextFormField(
+                                                    'К какому полу предназначено',
+                                                    tmzPersonController),
+                                                buildTextFormField('Размер ТМЗ',
+                                                    tmzSizeController),
+                                                buildTextFormField('Цвет ТМЗ',
+                                                    tmzColorController),
+                                                buildTextFormField(
+                                                    'Количество ТМЗ',
+                                                    tmzQuantityController),
+                                                buildTextFormField(
+                                                    'Единица измерения ТМЗ',
+                                                    tmzUnitController),
+                                                buildTextFormField(
+                                                    'Цена на покупку',
+                                                    tmzPurchasepriceController),
+                                                buildTextFormField(
+                                                    'Цена на продажу',
+                                                    tmzSellingpriceController),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    updateMaterialDetail(materialTmz.id);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('Update'),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.arrow_forward),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          TMZMaterialDetailPage(
+                                              material: materialTmz),
+                                      transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) {
+                                        const begin = Offset(-1.0, 0.0);
+                                        const end = Offset.zero;
+                                        const curve = Curves.ease;
+
+                                        var tween = Tween(
+                                                begin: begin, end: end)
+                                            .chain(CurveTween(curve: curve));
+                                        var offsetAnimation =
+                                            animation.drive(tween);
+
+                                        return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ));
                 },
               ),
       ),
@@ -233,13 +324,13 @@ Future<void> deleteTMZbyID(String id) async {
                             buildTextFormField(
                                 'Название ТМЗ', itemTmzNameController),
                             buildTextFormField(
-                                'БИН продавца', sellerBINController),
+                                'БИН продавца', sellerTMZBINController),
                             buildTextFormField(
                                 'Контакт продавца', sellerTMZContactController),
                             buildTextFormField(
                                 'Страна продавца', sellerTMZCountryController),
                             buildTextFormField(
-                                'Код товара', codeItemController),
+                                'Код товара', tmzCodeItemController),
                             buildTextFormField('Сезон ТМЗ', tmzSezonController),
                             buildTextFormField(
                                 'Модель ТМЗ', tmzModelController),
@@ -261,10 +352,10 @@ Future<void> deleteTMZbyID(String id) async {
                               alignment: Alignment.bottomCenter,
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  await _addTMZ();
+                                  await addTMZ();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Добавить'),
+                                child: Text('Добавить тмз'),
                               ),
                             ),
                           ],
@@ -289,6 +380,64 @@ Future<void> deleteTMZbyID(String id) async {
           );
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class TMZMaterialDetailPage extends StatelessWidget {
+  final Item material;
+
+  const TMZMaterialDetailPage({Key? key, required this.material})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Детали Сырья: ${material.tmzModel}'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildDetailCard('Название предмета', material.itemTmzName),
+              buildDetailCard('BIN продавца', material.sellerBin),
+              buildDetailCard('Контакт продавца', material.sellerTmzContact),
+              buildDetailCard('Страна продавца', material.sellerTmzCountry),
+              buildDetailCard('Импорт', material.itemImport ? 'Да' : 'Нет'),
+              buildDetailCard('Код предмета', material.codeitem),
+              buildDetailCard('Сезон сырья', material.tmzSezon),
+              buildDetailCard('Модель сырья', material.tmzModel),
+              buildDetailCard('Комментарий к сырью', material.tmzComment),
+              buildDetailCard('Ответственное лицо', material.tmzPerson),
+              buildDetailCard('Размер сырья', material.tmzSize),
+              buildDetailCard('Цвет сырья', material.tmzColor),
+              buildDetailCard('Количество', material.tmzQuantity.toString()),
+              buildDetailCard('Единица измерения', material.tmzUnit),
+              buildDetailCard(
+                  'Закупочная цена', material.tmzPurchaseprice.toString()),
+              buildDetailCard(
+                  'Цена продажи', material.tmzSellingprice.toString()),
+                  buildDetailCard('id ', material.id),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildDetailCard(String title, String value) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 10.0),
+      child: ListTile(
+        title: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(value),
       ),
     );
   }

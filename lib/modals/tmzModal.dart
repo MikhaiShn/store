@@ -1,80 +1,79 @@
+// To parse this JSON data, do
+//
+//     final tmzManufacturer = tmzManufacturerFromJson(jsonString);
+
 import 'dart:convert';
 
-class TMZGroup {
-  String id;
-  String groupName;
-  List<TMZModal> tmzList;
+TmzManufacturer tmzManufacturerFromJson(String str) => TmzManufacturer.fromJson(json.decode(str));
 
-  TMZGroup({
-    required this.id,
-    required this.groupName,
-    required this.tmzList,
-  });
+String tmzManufacturerToJson(TmzManufacturer data) => json.encode(data.toJson());
 
-  factory TMZGroup.fromJson(Map<String, dynamic> json) => TMZGroup(
-        id: json["_id"],
-        groupName: json["groupName"],
-        tmzList: List<TMZModal>.from(json["tmzList"].map((x) => TMZModal.fromJson(x))),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "_id": id,
-        "groupName": groupName,
-        "tmzList": List<dynamic>.from(tmzList.map((x) => x.toJson())),
-      };
-}
-
-List<TMZModal> tmzModalFromJson(String str) =>
-    List<TMZModal>.from(json.decode(str).map((x) => TMZModal.fromJson(x)));
-
-String tmzModalToJson(List<TMZModal> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
-
-class TMZModal {
+class TmzManufacturer {
   String id;
   String bin;
   String manufacturerIndustry;
   String item;
-  Map<String, List<MaterialTmz>> materials;
+  List<TMZMaterial> materials;
+  int version;
 
-  TMZModal({
+  TmzManufacturer({
     required this.id,
     required this.bin,
     required this.manufacturerIndustry,
     required this.item,
     required this.materials,
+    required this.version,
   });
 
-  factory TMZModal.fromJson(Map<String, dynamic> json) => TMZModal(
-    
-        id: json["_id"],
-        bin: json["bin"],
-        manufacturerIndustry: json["manufacturerIndustry"],
-        item: json["item"],
-        materials: Map.from(json["materials"]).map((k, v) => MapEntry<String, List<MaterialTmz>>(
-            k,
-            List<MaterialTmz>.from(v.map((x) => MaterialTmz.fromJson(x))))),
-      );
+  factory TmzManufacturer.fromJson(Map<String, dynamic> json) => TmzManufacturer(
+    id: json["_id"],
+    bin: json["bin"],
+    manufacturerIndustry: json["manufacturerIndustry"],
+    item: json["item"],
+    materials: List<TMZMaterial>.from(json["materials"].map((x) => TMZMaterial.fromJson(x))),
+    version: json["__v"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
-        "bin": bin,
-        "manufacturerIndustry": manufacturerIndustry,
-        "item": item,
-        "materials": Map.from(materials).map((k, v) =>
-            MapEntry<String, dynamic>(k, List<dynamic>.from(v.map((x) => x.toJson())))),
-      };
+    "_id": id,
+    "bin": bin,
+    "manufacturerIndustry": manufacturerIndustry,
+    "item": item,
+    "materials": List<dynamic>.from(materials.map((x) => x.toJson())),
+    "__v": version,
+  };
 }
 
+class TMZMaterial {
+  String groupName;
+  String id;
+  List<Item> items;
 
-class MaterialTmz {
-  String tmzId;
+  TMZMaterial({
+    required this.groupName,
+    required this.id,
+    required this.items,
+  });
+
+  factory TMZMaterial.fromJson(Map<String, dynamic> json) => TMZMaterial(
+    groupName: json["groupName"],
+    id: json["_id"],
+    items: List<Item>.from(json["items"].map((x) => Item.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "groupName": groupName,
+    "_id": id,
+    "items": List<dynamic>.from(items.map((x) => x.toJson())),
+  };
+}
+
+class Item {
   String itemTmzName;
   String sellerBin;
   String sellerTmzContact;
   String sellerTmzCountry;
-  bool materialImport;
+  bool itemImport;
   String codeitem;
   String tmzSezon;
   String tmzModel;
@@ -82,22 +81,21 @@ class MaterialTmz {
   String tmzPerson;
   String tmzSize;
   String tmzColor;
-  DateTime tmzExpiryDate;
+  String tmzExpiryDate;
   int tmzQuantity;
   String tmzUnit;
   int tmzPurchaseprice;
   int tmzSellingprice;
+  String id;
   int tmzTotalPurchase;
   int tmzTotalSelling;
-  String id;
 
-  MaterialTmz({
-    required this.tmzId,
+  Item({
     required this.itemTmzName,
     required this.sellerBin,
     required this.sellerTmzContact,
     required this.sellerTmzCountry,
-    required this.materialImport,
+    required this.itemImport,
     required this.codeitem,
     required this.tmzSezon,
     required this.tmzModel,
@@ -110,58 +108,54 @@ class MaterialTmz {
     required this.tmzUnit,
     required this.tmzPurchaseprice,
     required this.tmzSellingprice,
+    required this.id,
     required this.tmzTotalPurchase,
     required this.tmzTotalSelling,
-    required this.id,
   });
 
-  factory MaterialTmz.fromJson(Map<String, dynamic> json) => MaterialTmz(
-        tmzId: json["tmzID"] ?? "",
-        itemTmzName: json["itemTmzName"] ?? "",
-        sellerBin: json["sellerBIN"] ?? "",
-        sellerTmzContact: json["sellerTMZContact"] ?? "",
-        sellerTmzCountry: json["sellerTMZCountry"] ?? "",
-        materialImport: json["import"] ?? false,
-        codeitem: json["codeitem"] ?? "",
-        tmzSezon: json["tmzSezon"] ?? "",
-        tmzModel: json["tmzModel"] ?? "",
-        tmzComment: json["tmzComment"] ?? "",
-        tmzPerson: json["tmzPerson"] ?? "",
-        tmzSize: json["tmzSize"] ?? "",
-        tmzColor: json["tmzColor"] ?? "",
-        tmzExpiryDate: DateTime.parse(json["tmzExpiryDate"]),
-        tmzQuantity: json["tmzQuantity"] ?? 0,
-        tmzUnit: json["tmzUnit"] ?? "",
-        tmzPurchaseprice: json["tmzPurchaseprice"] ?? 0,
-        tmzSellingprice: json["tmzSellingprice"] ?? 0,
-        tmzTotalPurchase: json["tmzTotalPurchase"] ?? 0,
-        tmzTotalSelling: json["tmzTotalSelling"] ?? 0,
-        id: json["_id"] ?? "",
-      );
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+    itemTmzName: json["itemTmzName"],
+    sellerBin: json["sellerBIN"],
+    sellerTmzContact: json["sellerTMZContact"],
+    sellerTmzCountry: json["sellerTMZCountry"],
+    itemImport: json["import"],
+    codeitem: json["codeitem"],
+    tmzSezon: json["tmzSezon"],
+    tmzModel: json["tmzModel"],
+    tmzComment: json["tmzComment"],
+    tmzPerson: json["tmzPerson"],
+    tmzSize: json["tmzSize"],
+    tmzColor: json["tmzColor"],
+    tmzExpiryDate:json["tmzExpiryDate"],
+    tmzQuantity: json["tmzQuantity"],
+    tmzUnit: json["tmzUnit"],
+    tmzPurchaseprice: json["tmzPurchaseprice"],
+    tmzSellingprice: json["tmzSellingprice"],
+    id: json["_id"],
+    tmzTotalPurchase: json["tmzTotalPurchase"],
+    tmzTotalSelling: json["tmzTotalSelling"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "tmzID": tmzId,
-        "itemTmzName": itemTmzName,
-        "sellerBIN": sellerBin,
-        "sellerTMZContact": sellerTmzContact,
-        "sellerTMZCountry": sellerTmzCountry,
-        "import": materialImport,
-        "codeitem": codeitem,
-        "tmzSezon": tmzSezon,
-        "tmzModel": tmzModel,
-        "tmzComment": tmzComment,
-        "tmzPerson": tmzPerson,
-        "tmzSize": tmzSize,
-        "tmzColor": tmzColor,
-        "tmzExpiryDate": tmzExpiryDate.toIso8601String(),
-        "tmzQuantity": tmzQuantity,
-        "tmzUnit": tmzUnit,
-        "tmzPurchaseprice": tmzPurchaseprice,
-        "tmzSellingprice": tmzSellingprice,
-        "tmzTotalPurchase": tmzTotalPurchase,
-        "tmzTotalSelling": tmzTotalSelling,
-        "_id": id,
-      };
+    "itemTmzName": itemTmzName,
+    "sellerBIN": sellerBin,
+    "sellerTMZContact": sellerTmzContact,
+    "sellerTMZCountry": sellerTmzCountry,
+    "import": itemImport,
+    "codeitem": codeitem,
+    "tmzSezon": tmzSezon,
+    "tmzModel": tmzModel,
+    "tmzComment": tmzComment,
+    "tmzPerson": tmzPerson,
+    "tmzSize": tmzSize,
+    "tmzColor": tmzColor,
+    "tmzExpiryDate": tmzExpiryDate,
+    "tmzQuantity": tmzQuantity,
+    "tmzUnit": tmzUnit,
+    "tmzPurchaseprice": tmzPurchaseprice,
+    "tmzSellingprice": tmzSellingprice,
+    "_id": id,
+    "tmzTotalPurchase": tmzTotalPurchase,
+    "tmzTotalSelling": tmzTotalSelling,
+  };
 }
-
-

@@ -32,7 +32,6 @@ class _ShopMaterialsState extends State<ShopMaterials> {
 
     if (response.statusCode == 200) {
       print('Сырье получено успешно');
-      // Декодируем ответ JSON
       dynamic responseData = jsonDecode(response.body);
 
       // Проверяем тип данных
@@ -48,14 +47,10 @@ class _ShopMaterialsState extends State<ShopMaterials> {
       } else if (responseData is Map<String, dynamic>) {
         // Если вернулся один объект, а не список, можно обработать его как один объект
         Manufacturer manufacturer = Manufacturer.fromJson(responseData);
-
         setState(() {
           manufacturerClient = [manufacturer];
         });
-
-        // Сохраняем _id выбранного материала
-        selectedMaterialId =
-            manufacturer.id; // Предполагается, что у Manufacturer есть поле id
+        selectedMaterialId = manufacturer.id; // Предполагается, что у Manufacturer есть поле id
       } else {
         print('Ошибка: полученные данные не соответствуют ожидаемому формату');
       }
@@ -74,9 +69,6 @@ class _ShopMaterialsState extends State<ShopMaterials> {
   }
 
   Future<void> addMaterialCategory() async {
-    print('binClient $binClient');
-    print('groupName ${rawGroupNameController.text}');
-    print('id industry: $selectedMaterialId');
     final url = Uri.parse(
         'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/raw/$selectedMaterialId/groups');
 
@@ -125,7 +117,6 @@ class _ShopMaterialsState extends State<ShopMaterials> {
 
     if (response.statusCode == 200) {
       print('Название группы успешно изменено');
-      print('$selectedMaterialId , $groupID');
       getMaterial();
     } else {
       print('Ошибка при изменении названия группы: ${response.statusCode}');
@@ -186,7 +177,6 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                                       newRawGroupController),
                                   ElevatedButton(
                                       onPressed: () {
-                                        print('${newRawGroupController.text}');
                                         updateGroupName();
                                         Navigator.pop(context);
                                       },

@@ -40,8 +40,8 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
         sellerBin: sellerRawBINController.text,
         sellerRawContact: selerRawContactController.text,
         sellerRawCountry: selerRawCountryController.text,
-        itemImport: importController.text.toLowerCase() == 'true',
-        codeitem: codeitemController.text,
+        itemImport: rawImportController.text.toLowerCase() == 'true',
+        codeitem: rawCodeitemController.text,
         rawSezon: rawSezonController.text,
         rawModel: rawModelController.text,
         rawComment: rawCommentController.text,
@@ -85,8 +85,8 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
     sellerRawBINController.clear();
     selerRawContactController.clear();
     selerRawCountryController.clear();
-    importController.clear();
-    codeitemController.clear();
+    rawImportController.clear();
+    rawCodeitemController.clear();
     rawSezonController.clear();
     rawModelController.clear();
     rawCommentController.clear();
@@ -164,10 +164,10 @@ Future<void> updateMaterialDetail(String idMaterial) async {
         "sellerBIN": sellerRawBINController.text,
         "sellerRawContact": sellerTMZContactController.text,
         "sellerRawCountry": selerRawCountryController.text,
-        "import": importController.text.toLowerCase() == 'true',
-        "codeitem": codeItemController.text,
+        "import": rawImportController.text.toLowerCase() == 'true',
+        "codeitem": rawCodeitemController.text,
         "rawSezon": rawSezonController.text,
-        "rawModel": rawModelController.text,
+        "rawModel": rawModelController.text,  
         "rawComment": rawCommentController.text,
         "rawPerson": rawPersonController.text,
         "rawSize": rawSizeController.text,
@@ -185,14 +185,11 @@ Future<void> updateMaterialDetail(String idMaterial) async {
     if (response.statusCode == 200) {
       print('Material details updated successfully');
       getMaterialInGroup();
-      // Добавьте здесь код для обработки успешного обновления
     } else {
       print('Failed to update material details: ${response.statusCode}');
-      // Обработка ошибок, если необходимо
     }
   } catch (error) {
     print('Error updating material details: $error');
-    // Обработка других ошибок, если необходимо
   }
 }
 
@@ -249,9 +246,9 @@ Future<void> updateMaterialDetail(String idMaterial) async {
                                       buildTextFormField('Seller Country',
                                           selerRawCountryController),
                                       buildTextFormField('Import (true/false)',
-                                          importController),
+                                          rawImportController),
                                       buildTextFormField(
-                                          'Item Code', codeitemController),
+                                          'Item Code', rawCodeitemController),
                                       buildTextFormField(
                                           'Raw Season', rawSezonController),
                                       buildTextFormField(
@@ -317,8 +314,8 @@ Future<void> updateMaterialDetail(String idMaterial) async {
                       buildTextFormField(
                           'Seller Country', selerRawCountryController),
                       buildTextFormField(
-                          'Import (true/false)', importController),
-                      buildTextFormField('Item Code', codeitemController),
+                          'Import (true/false)', rawImportController),
+                      buildTextFormField('Item Code', rawCodeitemController),
                       buildTextFormField('Raw Season', rawSezonController),
                       buildTextFormField('Raw Model', rawModelController),
                       buildTextFormField('Raw Comment', rawCommentController),

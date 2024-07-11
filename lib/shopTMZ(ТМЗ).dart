@@ -7,7 +7,7 @@ import 'package:shop_apllication_1/modals/tmzModal.dart';
 import 'package:shop_apllication_1/tmzDetailPage.dart';
 
 class ShopTMZ extends StatefulWidget {
-  String token;
+  final String token;
   ShopTMZ({Key? key, required this.token}) : super(key: key);
 
   @override
@@ -15,244 +15,276 @@ class ShopTMZ extends StatefulWidget {
 }
 
 class _ShopTMZState extends State<ShopTMZ> {
-  List<TMZModal> tmzManufacturerClient = [];
+  List<TmzManufacturer> tmzManufacturerClient = [];
   String? groupName;
+  String? materialId;
+  String? groupID;
+
   Future<void> getTMZ() async {
     final response = await http.get(
-      Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/bin/$binClient'),
+      Uri.parse(
+          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/bin/$binClient'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${widget.token}'},
+        'Authorization': 'Bearer ${widget.token}'
+      },
     );
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
       print('ТМЗ данные успешно получены');
-      List<dynamic> tmzManufacturerJson = jsonDecode(response.body);
-      setState(() {
-        // tmzManufacturerClient =
-        //     tmzManufacturerJson;
-      });
+      dynamic responseData = jsonDecode(response.body);
+      if (responseData is List) {
+        List<TmzManufacturer> manufacturers = responseData
+            .map<TmzManufacturer>((json) => TmzManufacturer.fromJson(json))
+            .toList();
+
+        setState(() {
+          tmzManufacturerClient = manufacturers;
+        });
+      } else if (responseData is Map<String, dynamic>) {
+        TmzManufacturer manufacturer = TmzManufacturer.fromJson(responseData);
+
+        setState(() {
+          tmzManufacturerClient = [manufacturer];
+        });
+      } else {
+        print('Ошибка: полученные данные не соответствуют ожидаемому формату');
+      }
     } else {
-      // Обработка ошибок запроса, например:
       print('Failed to fetch data: ${response.statusCode}');
     }
   }
 
-  Future<void> addTMZCategory() async {
-    print('binClient $binClient');
-    print('groupName ${tmzGroupNameController.text}');
-    final response = await http.post(
+  Future<void> addMaterialCategory() async {
+    final url = Uri.parse(
+        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${widget.token}',
+        },
+        body: jsonEncode({
+          "groupName": tmzGroupNameController.text,
+          "items": [] // Если требуется добавление элементов, их нужно добавить сюда
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print('Группа тмз добавлена успешно');
+        getTMZ(); 
+        tmzGroupNameController.clear();
+      } else {
+        print('Ошибка при добавлении группы тмз: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Ошибка при выполнении операции: $error');
+    }
+  }
+
+  Future<void> updateGroupName() async {
+    final response = await http.put(
       Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/group'),
+        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups/$groupID',
+      ),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${widget.token}',
       },
       body: jsonEncode({
-        'bin':
-            binClient, // Предположим, что binClient - это ваша переменная или значение BIN
-        'manufacturerIndustry':
-            manufacturerIndustryName, // Предположим, что это ваше значение отрасли производства
-        'groupName':
-            groupName, // Название группы сырья из контроллера
+        "groupName": newTMZGroupController.text,
       }),
     );
 
-    if (response.statusCode == 201) {
-      print('Группа сырья добавлена успешно');
-      // Выполнение каких-либо действий после успешного добавления
-      getTMZ(); // Возможно, это ваш метод для получения обновленных данных
-    tmzGroupNameController
-          .clear(); // Очистка поля ввода названия группы сырья
+    if (response.statusCode == 200) {
+      print('Название группы успешно изменено');
+      getTMZ();
     } else {
-      print('Ошибка при добавлении группы сырья: ${response.statusCode}');
-      // Обработка ошибок, если необходимо
+      print('Ошибка при изменении названия группы: ${response.statusCode}');
     }
   }
 
-  Future<void> deleteGroupTMZ() async {
-print('Удаление группы началось');
-  print(groupName);
-  print(binClient);
-
-  var headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ${widget.token}',
-  };
-  var request = http.Request(
-      'DELETE',
-      Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/group'));
-  request.body = json.encode({
-    'bin': binClient,
-    'groupName': groupName,
-  });
-  request.headers.addAll(headers);
-
-  http.StreamedResponse response = await request.send();
-
-  print(response.statusCode);
-  if (response.statusCode == 200) {
-    getTMZ();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Заказ успешно удален')),
-    );
-  } else {
-    print('Ошибка при удалении группы: ${response.reasonPhrase}');
-  }
+  Future<void> deleteRawGroup() async {
+    final response = await http.delete(Uri.parse(
+        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups/$groupID'));
+    if (response.statusCode == 200) {
+      print('Группа успешно удалена');
+    } else {
+      print('Ошибка при удалении группы: ${response.statusCode}');
+    }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getTMZ();
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200], // Светло-серый фон
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Center(child: Text('Товаро-материальный запас')),
+        title: Text('Товарно-материальный запас'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          height: MediaQuery.of(context).size.height * 0.65,
+                          padding: EdgeInsets.all(16.0),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(height: 20),
+                                Center(
+                                  child: Text('Добавить группу', style: textH1),
+                                ),
+                                buildTextFormField(
+                                  'Новая группа',
+                                  tmzGroupNameController,
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      await addMaterialCategory();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Добавить'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 0.0,
+                          top: 0.0,
+                          child: IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: tmzManufacturerClient.length,
         itemBuilder: (context, manufacturerIndex) {
-          TMZModal tmzModal = tmzManufacturerClient[manufacturerIndex];
-          List<String> categoryKeys = tmzModal.materials.keys.toList();
-          return Container(
-            margin: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Производитель: ${tmzModal.manufacturerIndustry}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+          TmzManufacturer tmzModal = tmzManufacturerClient[manufacturerIndex];
+          materialId = tmzModal.id;
+
+          return Column(
+            children: tmzModal.materials.map((material) {
+              groupID = material.id;
+              return Dismissible(
+                key: Key(material.id),
+                confirmDismiss: (direction) async {
+                  await deleteRawGroup();
+                  return true;
+                },
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: categoryKeys.map((keys) {
-                    groupName = keys;
-                    List<MaterialTmz> tmzMaterialList =
-                        tmzModal.materials[keys]!;
-                    return Dismissible(
-                      key: Key(keys),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) async {
-                        setState(() {
-                          tmzModal.materials.remove(keys);
-                        });
-                        await deleteGroupTMZ();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('$keys удален')),
+                child: GestureDetector(
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (builder) {
+                        return Dialog(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.height * 0.2,
+                            child: Column(
+                              children: [
+                                buildTextFormField(
+                                  'Новое название группы',
+                                  newTMZGroupController,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    updateGroupName();
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('Изменить'),
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       },
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TmzDetail(
-                                  groupName: groupName,
-                                  keys: keys,
-                                  token: widget.token,
-                                  material: tmzMaterialList,
-                                  ),
-                            ),
+                    );
+                  },
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder:
+                            (context, animation, secondaryAnimation) =>
+                                TmzDetail(
+                          token: widget.token,
+                          material: material.items,
+                          groupName: material.groupName,
+                          groupId: groupID,
+                          materialId: materialId,
+                        ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(-1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
                           );
                         },
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          margin: EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            keys,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
                       ),
                     );
-                  }).toList(),
+                  },
+                  child: Card(
+                    color: Colors.white,
+                    child: ListTile(
+                      title: Text(material.groupName),
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              );
+            }).toList(),
           );
         },
       ),
-        // floatingActionButton:  FloatingActionButton(
-        //         onPressed: () {
-        //           showDialog(
-        //             context: context,
-        //             builder: (BuildContext context) {
-        //               return Dialog(
-        //                 child: Stack(
-        //                   children: [
-        //                     Container(
-        //                       width: MediaQuery.of(context).size.width *
-        //                           0.9, // 90% of screen width
-        //                       height: MediaQuery.of(context).size.height *
-        //                           0.65, // 60% of screen height
-        //                       padding: EdgeInsets.all(16.0),
-        //                       child: SingleChildScrollView(
-        //                         child: Column(
-        //                           mainAxisSize: MainAxisSize.min,
-        //                           children: [
-        //                             SizedBox(height: 20),
-        //                             Center(
-        //                               child:
-        //                                   Text('Добавить группу', style: textH1),
-        //                             ),
-        //                             Text(manufacturerIndustryName!),
-        //                             buildTextFormField(
-        //                                 'Новая группа', tmzGroupNameController),
-        //                             Align(
-        //                               alignment: Alignment.bottomCenter,
-        //                               child: ElevatedButton(
-        //                                 onPressed: () async {
-        //                                   addTMZCategory();
-        //                                   Navigator.of(context).pop();
-        //                                 },
-        //                                 child: Text('Добавить'),
-        //                               ),
-        //                             ),
-        //                           ],
-        //                         ),
-        //                       ),
-        //                     ),
-        //                     Positioned(
-        //                       right: 0.0,
-        //                       top: 0.0,
-        //                       child: IconButton(
-        //                         icon: Icon(Icons.close),
-        //                         onPressed: () {
-        //                           addTMZCategory();
-        //                           Navigator.of(context)
-        //                               .pop(); // Закрыть диалоговое окно
-        //                         },
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               );
-        //             },
-        //           );
-        //         },
-        //         child: Icon(Icons.add),
-        //       )
- 
     );
   }
+
 }

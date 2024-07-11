@@ -32,8 +32,8 @@ TextEditingController contactPokupatelController = TextEditingController();
 TextEditingController itemRawNameController = TextEditingController();
 TextEditingController sellerRawBINController = TextEditingController();
 TextEditingController selerRawCountryController = TextEditingController();
-TextEditingController importController = TextEditingController();
-TextEditingController codeitemController = TextEditingController();
+TextEditingController rawImportController = TextEditingController();
+TextEditingController rawCodeitemController = TextEditingController();
 TextEditingController rawSezonController = TextEditingController();
 TextEditingController rawModelController = TextEditingController();
 TextEditingController rawCommentController = TextEditingController();
@@ -52,10 +52,11 @@ TextEditingController newRawGroupController = TextEditingController();
 //ТМЗ
 TextEditingController tmzIDController = TextEditingController();
 TextEditingController itemTmzNameController = TextEditingController();
-TextEditingController sellerBINController = TextEditingController();
+TextEditingController sellerTMZBINController = TextEditingController();
 TextEditingController sellerTMZContactController = TextEditingController();
 TextEditingController sellerTMZCountryController = TextEditingController();
-TextEditingController codeItemController = TextEditingController();
+TextEditingController tmzImportController = TextEditingController();
+TextEditingController tmzCodeItemController = TextEditingController();
 TextEditingController tmzSezonController = TextEditingController();
 TextEditingController tmzModelController = TextEditingController();
 TextEditingController tmzCommentController = TextEditingController();
@@ -67,7 +68,7 @@ TextEditingController tmzQuantityController = TextEditingController();
 TextEditingController tmzUnitController = TextEditingController();
 TextEditingController tmzPurchasepriceController = TextEditingController();
 TextEditingController tmzSellingpriceController = TextEditingController();
-
+TextEditingController newTMZGroupController = TextEditingController();
 TextEditingController tmzGroupNameController =
     TextEditingController(); // Assuming this is for _id
 
