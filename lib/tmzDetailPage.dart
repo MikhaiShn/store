@@ -162,11 +162,11 @@ Future<void> getMaterialInTMZ() async {
         title: Text(widget.groupName!),
       ),
       body: RefreshIndicator(
-        onRefresh: getMaterialInTMZ, // Вызываем getTMZ при тяжении вниз
+        onRefresh: getMaterialInTMZ,
         child: _isLoading
             ? Center(
                 child:
-                    CircularProgressIndicator()) // Отображаем индикатор загрузки, пока идет запрос
+                    CircularProgressIndicator()) 
             : ListView.builder(
                 itemCount: widget.material.length,
                 itemBuilder: (context, index) {
@@ -175,13 +175,12 @@ Future<void> getMaterialInTMZ() async {
                       key: Key(materialTmz.id),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
-                        // Удаляем элемент из списка и вызываем setState для обновления состояния
                         setState(() {
                           widget.material.removeAt(index);
                         });
                         deleteTMZbyID(
                             materialTmz.id); // Удаление элемента по его tmzId
-                      },
+                      },  
                       background: Container(
                         color: Colors.red,
                         alignment: Alignment.centerRight,

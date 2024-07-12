@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shop_apllication_1/%D0%9A%D0%B0%D0%BB%D1%8C%D0%BA%D1%83%D0%BB%D1%8F%D1%86%D0%B8%D1%8F/shopCalculation.dart';
 import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shopCalculation.dart';
 import 'package:shop_apllication_1/shopProductManager.dart';
 import 'Заказы/shopAllOrders.dart';
 
