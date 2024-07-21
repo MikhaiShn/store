@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/modals/calculateModals.dart';
 import 'package:shop_apllication_1/Калькуляция/shopCalculationDetail.dart';
 
@@ -28,8 +29,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
     });
 
     final response = await http.get(
-      Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation'),
+      Uri.parse('https://baskasha-353162ef52af.herokuapp.com/calculation'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${widget.token}',
@@ -55,7 +55,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
 
   Future<void> postNewModel(String calculationID) async {
     final String url =
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models';
+        'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models';
 
     final Map<String, dynamic> requestData = {
       "modelName": modalCalculateController.text,
@@ -87,7 +87,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
   Future<void> postNewSize(String calculationID, String modalId) async {
     final response = await http.post(
       Uri.parse(
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models/$modalId/sizes',
+        'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models/$modalId/sizes',
       ),
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
   Future<void> putModel(String calculationID, String modelID) async {
     final response = await http.put(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models/$modelID'),
+            'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models/$modelID'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -133,7 +133,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
       String calculationID, String modelID, String sizeID) async {
     final response = await http.put(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models/$modelID/sizes/$sizeID'),
+            'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models/$modelID/sizes/$sizeID'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -151,7 +151,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
   Future<void> deleteModel(String calculationID, String modalId) async {
     final response = await http.delete(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models/$modalId'),
+            'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models/$modalId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -169,7 +169,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
     print('Запуск удаления размера в модели');
     final response = await http.delete(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/calculation/$calculationID/models/$modalId/sizes/$sizeID'),
+            'https://baskasha-353162ef52af.herokuapp.com/calculation/$calculationID/models/$modalId/sizes/$sizeID'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -192,45 +192,46 @@ class _ShopCalculationState extends State<ShopCalculation> {
     getCompleteModel();
   }
 
- void showDialogPutAndDelete(
-  String calculationID,
-  String titleText,
-  String labelText,
-  String leftButton,
-  String rightButton,
-  TextEditingController controller,
-  Future<void> Function() function, // Изменили тип аргумента на функцию без параметров
-) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(titleText),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: labelText),
-        ),
-        actions: [
-          TextButton(
-            child: Text(leftButton),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+  void showDialogPutAndDelete(
+    String calculationID,
+    String titleText,
+    String labelText,
+    String leftButton,
+    String rightButton,
+    TextEditingController controller,
+    Future<void> Function()
+        function, // Изменили тип аргумента на функцию без параметров
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(titleText),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(labelText: labelText),
           ),
-          TextButton(
-            child: Text(rightButton),
-            onPressed: () async { // Используем async для вызова асинхронной функции
-              Navigator.of(context).pop();
-              await function(); // Вызываем переданную функцию
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              child: Text(leftButton),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(rightButton),
+              onPressed: () async {
+                // Используем async для вызова асинхронной функции
+                Navigator.of(context).pop();
+                await function(); // Вызываем переданную функцию
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -241,7 +242,28 @@ class _ShopCalculationState extends State<ShopCalculation> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              postNewModel(calculate.first.id);
+              showDialog(
+                  context: context,
+                  builder: (BuildContext content) {
+                    return Dialog(
+                      child: Column(
+                        children: [
+                          buildTextFormField('Новое название модели',
+                              modalCalculateController),
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Отмена')),
+                          ElevatedButton(
+                              onPressed: () {
+                                postNewModel(calculate.first.id);
+                              },
+                              child: Text('Добавить'))
+                        ],
+                      ),
+                    );
+                  });
             },
           ),
         ],
@@ -333,7 +355,17 @@ class _ShopCalculationState extends State<ShopCalculation> {
                                                 IconButton(
                                                   icon: Icon(Icons.add),
                                                   onPressed: () {
-                                                    showDialogPutAndDelete(takeListCalculate.id, 'Изменить название модели', 'Новое название модели', 'Отмена', 'Сохранить', putModalCalculateController,() => putModel(takeListCalculate.id, itemModel.id));
+                                                    showDialogPutAndDelete(
+                                                        takeListCalculate.id,
+                                                        'Изменить название модели',
+                                                        'Новое название модели',
+                                                        'Отмена',
+                                                        'Сохранить',
+                                                        putModalCalculateController,
+                                                        () => putModel(
+                                                            takeListCalculate
+                                                                .id,
+                                                            itemModel.id));
                                                   },
                                                 ),
                                                 IconButton(
@@ -463,20 +495,25 @@ class _ShopCalculationState extends State<ShopCalculation> {
                                                       title: Text(
                                                           'Размер: ${itemSize.size}'),
                                                       trailing: IconButton(
-  onPressed: () {
-    showDialogPutAndDelete(
-      takeListCalculate.id,
-      'Изменить название размера',
-      'Новое название',
-      'Отмена',
-      'Сохранить',
-      putSizeCalculateController,
-      () => putsize(takeListCalculate.id, itemModel.id, itemSize.id), // Передаем функцию, которая вызовет putsize по нажатию
-    );
-  },
-  icon: Icon(Icons.edit),
-),
-
+                                                        onPressed: () {
+                                                          showDialogPutAndDelete(
+                                                            takeListCalculate
+                                                                .id,
+                                                            'Изменить название размера',
+                                                            'Новое название',
+                                                            'Отмена',
+                                                            'Сохранить',
+                                                            putSizeCalculateController,
+                                                            () => putsize(
+                                                                takeListCalculate
+                                                                    .id,
+                                                                itemModel.id,
+                                                                itemSize
+                                                                    .id), // Передаем функцию, которая вызовет putsize по нажатию
+                                                          );
+                                                        },
+                                                        icon: Icon(Icons.edit),
+                                                      ),
                                                       onTap: () {
                                                         Navigator.push(
                                                           context,

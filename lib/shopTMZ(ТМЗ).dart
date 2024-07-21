@@ -17,13 +17,11 @@ class ShopTMZ extends StatefulWidget {
 class _ShopTMZState extends State<ShopTMZ> {
   List<TmzManufacturer> tmzManufacturerClient = [];
   String? groupName;
-  String? materialId;
-  String? groupID;
 
   Future<void> getTMZ() async {
     final response = await http.get(
       Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/bin/$binClient'),
+          'https://baskasha-353162ef52af.herokuapp.com/tmz/bin/$binClient'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${widget.token}'
@@ -55,9 +53,9 @@ class _ShopTMZState extends State<ShopTMZ> {
     }
   }
 
-  Future<void> addMaterialCategory() async {
+  Future<void> addMaterialCategory(String industryID) async {
     final url = Uri.parse(
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups');
+        'https://baskasha-353162ef52af.herokuapp.com/tmz/$industryID/groups');
 
     try {
       final response = await http.post(
@@ -84,10 +82,10 @@ class _ShopTMZState extends State<ShopTMZ> {
     }
   }
 
-  Future<void> updateGroupName() async {
+  Future<void> updateGroupName(String industryID, String groupID) async {
     final response = await http.put(
       Uri.parse(
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups/$groupID',
+        'https://baskasha-353162ef52af.herokuapp.com/tmz/$industryID/groups/$groupID',
       ),
       headers: {
         'Content-Type': 'application/json',
@@ -106,9 +104,9 @@ class _ShopTMZState extends State<ShopTMZ> {
     }
   }
 
-  Future<void> deleteRawGroup() async {
+  Future<void> deleteRawGroup(String idIndustry, String groupID) async {
     final response = await http.delete(Uri.parse(
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/$materialId/groups/$groupID'));
+        'https://baskasha-353162ef52af.herokuapp.com/tmz/$idIndustry/groups/$groupID'));
     if (response.statusCode == 200) {
       print('Группа успешно удалена');
     } else {
@@ -158,7 +156,7 @@ class _ShopTMZState extends State<ShopTMZ> {
                                   alignment: Alignment.bottomCenter,
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      await addMaterialCategory();
+                                      await addMaterialCategory(tmzManufacturerClient.first.id);
                                       Navigator.of(context).pop();
                                     },
                                     child: Text('Добавить'),
@@ -187,20 +185,21 @@ class _ShopTMZState extends State<ShopTMZ> {
           ),
         ],
       ),
-      body: ListView.builder(
+body: tmzManufacturerClient.isEmpty
+    ? Center(
+        child: Text('Нет данных'),
+      )
+    : ListView.builder(
         itemCount: tmzManufacturerClient.length,
         itemBuilder: (context, manufacturerIndex) {
           TmzManufacturer tmzModal = tmzManufacturerClient[manufacturerIndex];
-          materialId = tmzModal.id;
-
           return Column(
             children: tmzModal.materials.map((material) {
-              groupID = material.id;
               return Dismissible(
                 key: Key(material.id),
                 confirmDismiss: (direction) async {
-                  await deleteRawGroup();
-                  return true;
+                  await deleteRawGroup(tmzModal.id,material.id);
+                  return true;  
                 },
                 direction: DismissDirection.endToStart,
                 background: Container(
@@ -229,7 +228,7 @@ class _ShopTMZState extends State<ShopTMZ> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    updateGroupName();
+                                    updateGroupName(tmzModal.id, material.id);
                                     Navigator.pop(context);
                                   },
                                   child: Text('Изменить'),
@@ -245,14 +244,13 @@ class _ShopTMZState extends State<ShopTMZ> {
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder:
-                            (context, animation, secondaryAnimation) =>
-                                TmzDetail(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            TmzDetail(
                           token: widget.token,
                           material: material.items,
                           groupName: material.groupName,
-                          groupId: groupID,
-                          materialId: materialId,
+                          groupId: material.id,
+                          materialId: tmzModal.id,
                         ),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
@@ -284,6 +282,7 @@ class _ShopTMZState extends State<ShopTMZ> {
           );
         },
       ),
+
     );
   }
 

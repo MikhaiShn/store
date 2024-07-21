@@ -18,17 +18,19 @@ class ShopAllOrders extends StatefulWidget {
 }
 
 class _ShopAllOrdersState extends State<ShopAllOrders> {
+  
   List<ZakazModal> listGetZakaz = [];
-  List<ProductModal> getProduct = [];
+  List<FinishedProduct> getProduct = [];
   Map<String, int> productAvailability = {};
   String? status;
   String? sId;
+
   @override
   void initState() {
     super.initState();
     token = widget.token;
     getZakaz();
-    getProductList();
+    // getProductList();
   }
 
   void clearTextFields() {
@@ -61,7 +63,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
 
       final response = await http.post(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz'),
+            'https://baskasha-353162ef52af.herokuapp.com/zakazy/zakaz'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "bin": binClient,
@@ -107,13 +109,12 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     }
   }
 
-  static String? _token = token;
   Future<void> getZakaz() async {
     try {
-      print('token getZakaz: $_token');
+      print('token getZakaz: ${widget.token}');
       final response = await http.get(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/all'),
+            'https://baskasha-353162ef52af.herokuapp.com/zakazy/all'),
         headers: {
           'Authorization': 'Bearer ${widget.token}'
         }, // Используем сохраненный токен
@@ -139,7 +140,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     var request = http.Request(
         'DELETE',
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/$id'));
+            'https://baskasha-353162ef52af.herokuapp.com/zakazy/$id'));
     final response = await request.send();
     if (response.statusCode == 200) {
       getZakaz();
@@ -152,7 +153,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
   Future<void> updateStatus(String zakazID) async {
     final response = await http.patch(
       Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz/$zakazID/status'),
+          'https://baskasha-353162ef52af.herokuapp.com/zakazy/zakaz/$zakazID/status'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -170,36 +171,36 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
     }
   }
 
-  Future<void> getProductList() async {
-    final url =
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
+  // Future<void> getProductList() async {
+  //   final url =
+  //       'https://baskasha-353162ef52af.herokuapp.com/product/all';
 
-    print('Fetching products from: $url');
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer ${widget.token}'
-      }, // Используем сохраненный токен
-    );
-    if (response.statusCode == 200) {
-      List<dynamic> responseBody = jsonDecode(response.body);
+  //   print('Fetching products from: $url');
+  //   final response = await http.get(
+  //     Uri.parse(url),
+  //     headers: {
+  //       'Authorization': 'Bearer ${widget.token}'
+  //     }, // Используем сохраненный токен
+  //   );
+  //   if (response.statusCode == 200) {
+  //     List<dynamic> responseBody = jsonDecode(response.body);
 
-      setState(() {
-        getProduct =
-            responseBody.map((data) => ProductModal.fromJson(data)).toList();
-        modalProduct =
-            getProduct.map((product) => product.productName!).toList();
-        quantityProduct =
-            getProduct.map((product) => product.productQuantity).toList();
-        int index = modalProduct.indexOf(getModal);
-        productAvailability = {
-          for (var product in getProduct)
-            product.productName!: product.productQuantity!
-        };
-      });
-      print('Successfully fetched products.');
-    }
-  }
+  //     setState(() {
+  //       getProduct =
+  //           responseBody.map((data) => ProductModal.fromJson(data)).toList();
+  //       modalProduct =
+  //           getProduct.map((product) => product.productName!).toList();
+  //       quantityProduct =
+  //           getProduct.map((product) => product.productQuantity).toList();
+  //       int index = modalProduct.indexOf(getModal);
+  //       productAvailability = {
+  //         for (var product in getProduct)
+  //           product.productName!: product.productQuantity!
+  //       };
+  //     });
+  //     print('Successfully fetched products.');
+  //   }
+  // }
 
   Future<bool?> _confirmDismiss(
       BuildContext context, int index, ZakazModal zakaz) async {
@@ -233,7 +234,7 @@ class _ShopAllOrdersState extends State<ShopAllOrders> {
 Future<void> updateZakaz(String id) async {
   print('Updating zakaz with ID: $id'); // Логирование ID заказа
   final response = await http.put(
-    Uri.parse('https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/zakazy/zakaz/$id'),
+    Uri.parse('https://baskasha-353162ef52af.herokuapp.com/zakazy/zakaz/$id'),
     headers: {
       'Content-Type': 'application/json',
     },

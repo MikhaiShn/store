@@ -7,8 +7,18 @@ import 'package:shop_apllication_1/modals/rawMaterialsModal.dart';
 
 class ShopMaterials extends StatefulWidget {
   final String? token;
-
-  ShopMaterials({Key? key, required this.token}) : super(key: key);
+  final String? checkCalculate;
+  final String? calculationID;
+  final String modelsID;
+  final String? sizeID;
+  ShopMaterials(
+      {Key? key,
+      required this.token,
+      required this.checkCalculate,
+      required this.calculationID,
+      required this.modelsID,
+      required this.sizeID})
+      : super(key: key);
 
   @override
   State<ShopMaterials> createState() => _ShopMaterialsState();
@@ -17,8 +27,11 @@ class ShopMaterials extends StatefulWidget {
 class _ShopMaterialsState extends State<ShopMaterials> {
   TextEditingController newMaterials = TextEditingController();
   List<Manufacturer> manufacturerClient = []; // Список для хранения материалов
-  String? selectedMaterialId; // Переменная для сохранения _id выбранного материала
+  String?
+      selectedMaterialId; // Переменная для сохранения _id выбранного материала
   String? groupID; //Хранение id группы
+  List<GroupMaterial> groupMaterials = []; // Добавляем список групп материалов
+  List<RawMaterial> rawMaterials = []; // Добавляем список айтемов
 
   Future<void> getMaterial() async {
     final response = await http.get(
@@ -50,7 +63,8 @@ class _ShopMaterialsState extends State<ShopMaterials> {
         setState(() {
           manufacturerClient = [manufacturer];
         });
-        selectedMaterialId = manufacturer.id; // Предполагается, что у Manufacturer есть поле id
+        selectedMaterialId =
+            manufacturer.id; // Предполагается, что у Manufacturer есть поле id
       } else {
         print('Ошибка: полученные данные не соответствуют ожидаемому формату');
       }
@@ -81,7 +95,8 @@ class _ShopMaterialsState extends State<ShopMaterials> {
         },
         body: jsonEncode({
           "groupName": rawGroupNameController.text,
-          "items": [] // Если требуется добавление элементов, их нужно добавить сюда
+          "items":
+              [] // Если требуется добавление элементов, их нужно добавить сюда
         }),
       );
 
@@ -198,6 +213,7 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                           rawMaterial: materialGroup.items,
                           idIndustry: selectedMaterialId!,
                           idGroup: materialGroup.id,
+                          checkCalculate: widget.checkCalculate!, calculationID: widget.calculationID, modelsID: widget.modelsID, sizeID: widget.sizeID,
                         ),
                       ),
                     );

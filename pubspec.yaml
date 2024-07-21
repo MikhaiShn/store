@@ -10,9 +10,22 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.0
-  file_picker: ^8.0.0+1
+  file_picker: ^8.0.6
   jwt_decoder: ^2.0.1
   jwt_decode: ^0.3.1
+  shared_preferences: ^2.2.3
+  aws_sdk: ^0.0.3
+  image_picker: ^1.1.2
+  firebase_auth: ^5.1.2
+  firebase_core: ^3.2.0
+  firebase_storage: ^12.1.1
+  image: ^4.2.0
+  path_provider: ^2.1.3
+  aws_s3_api: ^2.0.0
+  aws_s3_private_flutter: ^0.0.5
+  aws_client: ^0.6.0
+  aws_s3_upload_lite: ^0.1.0
+  minio_flutter: ^0.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -38,3 +51,4 @@ flutter:
    - assets1/icon_zakazy.png
    - assets1/icon_product2.png
    - assets1/background2.jpg
+   - assets1/arrowBack.png

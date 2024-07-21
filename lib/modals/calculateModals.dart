@@ -46,7 +46,7 @@ class CalculateModal {
 
 class ItemModel {
     String modelName;
-    int averagePrice;
+    double averagePrice;
     List<SizeVariation> sizeVariations;
     String id;
 
@@ -59,7 +59,7 @@ class ItemModel {
 
     factory ItemModel.fromJson(Map<String, dynamic> json) => ItemModel(
         modelName: json["modelName"] ?? '',
-        averagePrice: json["averagePrice"] ?? 0,
+        averagePrice: json["averagePrice"] != null ? json["averagePrice"].toDouble() : 0.0,
         sizeVariations: List<SizeVariation>.from(json["sizeVariations"].map((x) => SizeVariation.fromJson(x))),
         id: json["_id"] ?? '',
     );

@@ -13,7 +13,7 @@ class Manufacturer {
     String bin;
     String manufacturerIndustry;
     String item;
-    List<Material> materials;
+    List<GroupMaterial> materials;
     int v;
 
     Manufacturer({
@@ -30,7 +30,7 @@ class Manufacturer {
         bin: json["bin"],
         manufacturerIndustry: json["manufacturerIndustry"],
         item: json["item"],
-        materials: List<Material>.from(json["materials"].map((x) => Material.fromJson(x))),
+        materials: List<GroupMaterial>.from(json["materials"].map((x) => GroupMaterial.fromJson(x))),
         v: json["__v"],
     );
 
@@ -44,18 +44,18 @@ class Manufacturer {
     };
 }
 
-class Material {
+class GroupMaterial {
     String groupName;
     String id;
     List<RawMaterial> items;
 
-    Material({
+    GroupMaterial({
         required this.groupName,
         required this.id,
         required this.items,
     });
 
-    factory Material.fromJson(Map<String, dynamic> json) => Material(
+    factory GroupMaterial.fromJson(Map<String, dynamic> json) => GroupMaterial(
         groupName: json["groupName"],
         id: json["_id"],
         items: List<RawMaterial>.from(json["items"].map((x) => RawMaterial.fromJson(x))),
@@ -66,6 +66,11 @@ class Material {
         "_id": id,
         "items": List<dynamic>.from(items.map((x) => x.toJson())),
     };
+
+      @override
+  String toString() {
+    return 'GroupMaterial(groupName: $groupName, id: $id, items: $items)';
+  }
 }
 
 class RawMaterial {
@@ -158,4 +163,9 @@ class RawMaterial {
     "rawTotalPurchase": rawTotalPurchase,
     "rawTotalSelling": rawTotalSelling,
   };
+    @override
+  String toString() {
+    return 'RawMaterial(itemRawName: $itemRawName, sellerBin: $sellerBin, sellerRawContact: $sellerRawContact, sellerRawCountry: $sellerRawCountry, itemImport: $itemImport, codeitem: $codeitem, rawSezon: $rawSezon, rawModel: $rawModel, rawComment: $rawComment, rawPerson: $rawPerson, rawSize: $rawSize, rawColor: $rawColor, rawExpiryDate: $rawExpiryDate, rawQuantity: $rawQuantity, rawUnit: $rawUnit, rawPurchaseprice: $rawPurchaseprice, rawSellingprice: $rawSellingprice, id: $id, rawTotalPurchase: $rawTotalPurchase, rawTotalSelling: $rawTotalSelling)';
+  }
+
 }

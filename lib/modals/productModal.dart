@@ -1,92 +1,149 @@
-class ProductModal {
-  String? sId;
-  String? bin;
-  String? manufacturerIndustry;
-  String? item;
-  String? productName;
-  String? productType;
-  String? codeitem;
-  String? productSezon;
-  String? productModel;
-  String? productComment;
-  String? productPerson;
-  String? productSize;
-  String? productColor;
-  int? productQuantity;
-  String? productUnit;
-  int? productSebeStoimost;
-  int? productSellingprice;
-  int? productTotalSebestoimost;
-  int? productTotalSelling;
-  int? iV;
+// To parse this JSON data, do
+//
+//     final finishedProduct = finishedProductFromJson(jsonString);
 
-  ProductModal(
-      {this.sId,
-      this.bin,
-      this.manufacturerIndustry,
-      this.item,
-      this.productName,
-      this.productType,
-      this.codeitem,
-      this.productSezon,
-      this.productModel,
-      this.productComment,
-      this.productPerson,
-      this.productSize,
-      this.productColor,
-      this.productQuantity,
-      this.productUnit,
-      this.productSebeStoimost,
-      this.productSellingprice,
-      this.productTotalSebestoimost,
-      this.productTotalSelling,
-      this.iV});
+import 'dart:convert';
 
-  ProductModal.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    bin = json['bin'];
-    manufacturerIndustry = json['manufacturerIndustry'];
-    item = json['item'];
-    productName = json['productName'];
-    productType = json['productType'];
-    codeitem = json['codeitem'];
-    productSezon = json['productSezon'];
-    productModel = json['productModel'];
-    productComment = json['productComment'];
-    productPerson = json['productPerson'];
-    productSize = json['productSize'];
-    productColor = json['productColor'];
-    productQuantity = json['productQuantity'];
-    productUnit = json['productUnit'];
-    productSebeStoimost = json['productSebeStoimost'];
-    productSellingprice = json['productSellingprice'];
-    productTotalSebestoimost = json['productTotalSebestoimost'];
-    productTotalSelling = json['productTotalSelling'];
-    iV = json['__v'];
-  }
+List<FinishedProduct> finishedProductFromJson(String str) => List<FinishedProduct>.from(json.decode(str).map((x) => FinishedProduct.fromJson(x)));
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['bin'] = this.bin;
-    data['manufacturerIndustry'] = this.manufacturerIndustry;
-    data['item'] = this.item;
-    data['productName'] = this.productName;
-    data['productType'] = this.productType;
-    data['codeitem'] = this.codeitem;
-    data['productSezon'] = this.productSezon;
-    data['productModel'] = this.productModel;
-    data['productComment'] = this.productComment;
-    data['productPerson'] = this.productPerson;
-    data['productSize'] = this.productSize;
-    data['productColor'] = this.productColor;
-    data['productQuantity'] = this.productQuantity;
-    data['productUnit'] = this.productUnit;
-    data['productSebeStoimost'] = this.productSebeStoimost;
-    data['productSellingprice'] = this.productSellingprice;
-    data['productTotalSebestoimost'] = this.productTotalSebestoimost;
-    data['productTotalSelling'] = this.productTotalSelling;
-    data['__v'] = this.iV;
-    return data;
-  }
+String finishedProductToJson(List<FinishedProduct> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
+class FinishedProduct {
+    String id;
+    String item;
+    String bin;
+    String manufacturerIndustry;
+    String comment;
+    List<ItemModelProduct> itemModels;
+    int v;
+
+    FinishedProduct({
+        required this.id,
+        required this.item,
+        required this.bin,
+        required this.manufacturerIndustry,
+        required this.comment,
+        required this.itemModels,
+        required this.v,
+    });
+
+    factory FinishedProduct.fromJson(Map<String, dynamic> json) => FinishedProduct(
+        id: json["_id"],
+        item: json["item"],
+        bin: json["bin"],
+        manufacturerIndustry: json["manufacturerIndustry"],
+        comment: json["comment"],
+        itemModels: List<ItemModelProduct>.from(json["itemModels"].map((x) => ItemModelProduct.fromJson(x))),
+        v: json["__v"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "_id": id,
+        "item": item,
+        "bin": bin,
+        "manufacturerIndustry": manufacturerIndustry,
+        "comment": comment,
+        "itemModels": List<dynamic>.from(itemModels.map((x) => x.toJson())),
+        "__v": v,
+    };
+}
+
+class ItemModelProduct {
+    String modelName;
+    int summaSebestoimostPrice;
+    int summaProdazhaPrice;
+    int productAllQuantity;
+    String productSezon;
+    String productComment;
+    String productPerson;
+    String productColor;
+    String codeGtin;
+    List<SizeVariationProduct> sizeVariations;
+    String id;
+
+    ItemModelProduct({
+        required this.modelName,
+        required this.summaSebestoimostPrice,
+        required this.summaProdazhaPrice,
+        required this.productAllQuantity,
+        required this.productSezon,
+        required this.productComment,
+        required this.productPerson,
+        required this.productColor,
+        required this.codeGtin,
+        required this.sizeVariations,
+        required this.id,
+    });
+
+    factory ItemModelProduct.fromJson(Map<String, dynamic> json) => ItemModelProduct(
+        modelName: json["modelName"],
+        summaSebestoimostPrice: json["summaSebestoimostPrice"],
+        summaProdazhaPrice: json["summaProdazhaPrice"],
+        productAllQuantity: json["productAllQuantity"],
+        productSezon: json["productSezon"],
+        productComment: json["productComment"],
+        productPerson: json["productPerson"],
+        productColor: json["productColor"],
+        codeGtin: json["codeGTIN"],
+        sizeVariations: List<SizeVariationProduct>.from(json["sizeVariations"].map((x) => SizeVariationProduct.fromJson(x))),
+        id: json["_id"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "modelName": modelName,
+        "summaSebestoimostPrice": summaSebestoimostPrice,
+        "summaProdazhaPrice": summaProdazhaPrice,
+        "productAllQuantity": productAllQuantity,
+        "productSezon": productSezon,
+        "productComment": productComment,
+        "productPerson": productPerson,
+        "productColor": productColor,
+        "codeGTIN": codeGtin,
+        "sizeVariations": List<dynamic>.from(sizeVariations.map((x) => x.toJson())),
+        "_id": id,
+    };
+}
+
+class SizeVariationProduct {
+    String size;
+    int costSebestoimostPrice;
+    int costProdazhaPrice;
+    String codeitem;
+    String productSizeComment;
+    int productSizeQuantity;
+    String productSizeUnit;
+    String id;
+
+    SizeVariationProduct({
+        required this.size,
+        required this.costSebestoimostPrice,
+        required this.costProdazhaPrice,
+        required this.codeitem,
+        required this.productSizeComment,
+        required this.productSizeQuantity,
+        required this.productSizeUnit,
+        required this.id,
+    });
+
+    factory SizeVariationProduct.fromJson(Map<String, dynamic> json) => SizeVariationProduct(
+        size: json["size"],
+        costSebestoimostPrice: json["costSebestoimostPrice"],
+        costProdazhaPrice: json["costProdazhaPrice"],
+        codeitem: json["codeitem"],
+        productSizeComment: json["productSizeComment"],
+        productSizeQuantity: json["productSizeQuantity"],
+        productSizeUnit: json["productSizeUnit"],
+        id: json["_id"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "size": size,
+        "costSebestoimostPrice": costSebestoimostPrice,
+        "costProdazhaPrice": costProdazhaPrice,
+        "codeitem": codeitem,
+        "productSizeComment": productSizeComment,
+        "productSizeQuantity": productSizeQuantity,
+        "productSizeUnit": productSizeUnit,
+        "_id": id,
+    };
 }

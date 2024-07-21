@@ -13,7 +13,8 @@ class ShopProduct extends StatefulWidget {
 }
 
 class _ShopProductState extends State<ShopProduct> {
-  List<ProductModal> finishedProduct = [];
+  List<FinishedProduct> finishedProduct = [];
+  List<ItemModelProduct> modelProduct = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -25,9 +26,10 @@ class _ShopProductState extends State<ShopProduct> {
   }
 
   Future<void> getProduct() async {
-    final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/all';
+    final url =
+        'https://baskasha-353162ef52af.herokuapp.com/product/bin/$binClient';
     print('token Product: $token');
-    
+
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -37,14 +39,19 @@ class _ShopProductState extends State<ShopProduct> {
       if (response.statusCode == 200) {
         List<dynamic> responseBody = jsonDecode(response.body);
         setState(() {
-          finishedProduct = responseBody.map((data) => ProductModal.fromJson(data)).toList();
+          finishedProduct = responseBody
+              .map((data) => FinishedProduct.fromJson(data))
+              .toList();
+          modelProduct =
+              finishedProduct.expand((product) => product.itemModels).toList();
+          print(modelProduct.length);
           isLoading = false;
-          modalProduct = finishedProduct.map((product) => product.productName!).toList();
         });
         print('Successfully fetched products.');
       } else {
         setState(() {
-          errorMessage = 'Ошибка при получении продуктов: ${response.statusCode}';
+          errorMessage =
+              'Ошибка при получении продуктов: ${response.statusCode}';
           isLoading = false;
         });
         print('Ошибка при получении продуктов: ${response.statusCode}');
@@ -59,65 +66,155 @@ class _ShopProductState extends State<ShopProduct> {
     }
   }
 
-  Future<void> addProduct() async{
-    final url = 'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/product/add';
-    final headers = {'Content-Type': 'application/json'};
-    final response =await http.post(Uri.parse(url), headers: headers, body: jsonEncode({
-    'bin': '',
-    'manufacturerIndustry': '',
-    'productName': '',
-    'productType': '',
-    'codeitem': '',
-    'productSezon':'',
-    'productModel': '',
-    'productComment': '',
-    'productPerson': '',
-    'productSize': '',
-    'productColor': '',
-    'productQuantity': '',
-    'productUnit': '',
-    'productSebeStoimost': '',
-    'productSellingprice': ''
-    }));
-    if(response.statusCode == 200) {
-      getProduct();
-
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Продукты'),
+        title: Center(child: Text('Готовая продукция')),
+        automaticallyImplyLeading: false,
+        leading: IconButton(onPressed: () {},icon:  Image.asset('assets1/arrowBack.png'),),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
               ? Center(child: Text(errorMessage))
               : ListView.builder(
-                  itemCount: finishedProduct.length,
+                  itemCount: modelProduct.length,
                   itemBuilder: (context, index) {
-                    final takeProduct = finishedProduct[index];
+                    final takeFinishedProduct = modelProduct[index];
                     return Container(
-                      height: 100,
-                      margin: EdgeInsets.all(8.0),
-                      padding: EdgeInsets.all(16.0),
+                      margin: EdgeInsets.only(bottom: 15),
                       decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Количество: ${takeProduct.productQuantity}', style: TextStyle(color: Colors.white)),
-                          Text('Наименование: ${takeProduct.productName}', style: TextStyle(color: Colors.white)),
-                          Text('Цена: ${takeProduct.productSellingprice}', style: TextStyle(color: Colors.white)),
+                        color: Color.fromARGB(255, 36, 192, 42).withOpacity(
+                            0.5), // Пример: красный цвет с 50% прозрачности
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(20),bottomLeft: Radius.circular(20)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3), // изменение положения тени
+                          ),
                         ],
+                      ),
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Модель: ${takeFinishedProduct.modelName}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  'На складе: ${takeFinishedProduct.productAllQuantity}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 10), // Пространство между столбцами
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  if (takeFinishedProduct
+                                      .sizeVariations.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Размеры',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                            width:
+                                                10), // Пространство между "Размеры" и значением
+                                      ],
+                                    ),
+                                  Text(
+                                    'Цена: ${takeFinishedProduct.summaProdazhaPrice}',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      overflow: TextOverflow
+                                          .ellipsis, // Текст с многоточием при необходимости
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (takeFinishedProduct.sizeVariations.isNotEmpty)
+                              Align(
+                                alignment: Alignment.center,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ShopProductDetail(
+                                          sizeVariationProduct:
+                                              takeFinishedProduct
+                                                  .sizeVariations,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.arrow_right_alt),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     );
                   },
                 ),
+    );
+  }
+}
+
+class ShopProductDetail extends StatefulWidget {
+  ShopProductDetail({super.key, required this.sizeVariationProduct});
+  List<SizeVariationProduct> sizeVariationProduct;
+  @override
+  State<ShopProductDetail> createState() => _ShopProductDetailState();
+}
+
+class _ShopProductDetailState extends State<ShopProductDetail> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: ListView.builder(
+        itemCount: widget.sizeVariationProduct.length,
+        itemBuilder: (context, index) {
+          final sizeVariation = widget.sizeVariationProduct[index];
+          return ExpansionTile(
+            title: Text('Размер: ${sizeVariation.size}'),
+            children: [
+              ListTile(
+                title: Text('Цвет: ${sizeVariation.productSizeQuantity}'),
+                subtitle:
+                    Text('Количество: ${sizeVariation.costProdazhaPrice}'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

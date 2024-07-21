@@ -42,7 +42,7 @@ class _TmzDetailState extends State<TmzDetail> {
     try {
       final response = await http.put(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'),
+            'https://baskasha-353162ef52af.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -82,7 +82,7 @@ class _TmzDetailState extends State<TmzDetail> {
 
   Future<void> deleteTMZbyID(String idMaterial) async {
     final response = await http.delete(Uri.parse(
-        'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'));
+        'https://baskasha-353162ef52af.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items/$idMaterial'));
     if (response.statusCode == 200) {
       print('Raw material deleted successfully');
     } else {
@@ -116,7 +116,7 @@ class _TmzDetailState extends State<TmzDetail> {
       );
       final response = await http.post(
         Uri.parse(
-            'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'),
+            'https://baskasha-353162ef52af.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -139,12 +139,11 @@ class _TmzDetailState extends State<TmzDetail> {
 
 Future<void> getMaterialInTMZ() async {
   final response = await http.get(Uri.parse(
-      'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'));
+      'https://baskasha-353162ef52af.herokuapp.com/tmz/${widget.materialId}/groups/${widget.groupId}/items'));
   if (response.statusCode == 200) {
     print('ТМЗ успешно получены в группе');
     print('${widget.materialId}, ${widget.groupId}');
     final List<dynamic> responseBody = jsonDecode(response.body);
-    print('Response Body: $responseBody');
     List<Item> getListMaterial = responseBody
         .map((data) => Item.fromJson(data as Map<String, dynamic>))
         .toList();
@@ -168,7 +167,7 @@ Future<void> getMaterialInTMZ() async {
                 child:
                     CircularProgressIndicator()) 
             : ListView.builder(
-                itemCount: widget.material.length,
+                itemCount: tmzMaterial.length,
                 itemBuilder: (context, index) {
                   Item materialTmz = tmzMaterial[index];
                   return Dismissible(
