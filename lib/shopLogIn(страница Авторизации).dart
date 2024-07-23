@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shop.dart';
 export 'package:shop_apllication_1/modals/AuthModal.dart';
@@ -20,38 +21,54 @@ class _ShopLogInState extends State<ShopLogIn> {
   TextEditingController _passwordController = TextEditingController();
 
   Future<void> _login() async {
-    final response = await http.post(
-      Uri.parse(
-          'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/auth/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'login': _loginController.text,
-        'password': _passwordController.text,
-      }),
-    );
+  final response = await http.post(
+    Uri.parse('https://baskasha-353162ef52af.herokuapp.com/auth/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'login': _loginController.text,
+      'password': _passwordController.text,
+    }),
+  );
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      print('Response body: $responseBody'); // Логирование тела ответа
-      token = responseBody['token'];
+  if (response.statusCode == 200) {
+    final responseBody = jsonDecode(response.body);
+    print('Response body: $responseBody'); // Логирование тела ответа
+    token = responseBody['token'];
 
-      if (token != null) {
-        try {
-          Map<String, dynamic> payload = Jwt.parseJwt(token!);
-          role = payload['role'];
-          binClient = payload['bin'];
-          manufacturerIndustryName = payload['manufacturerIndustry'];
-          String? id = payload['_id'] as String?;
-          // Вывод данных для отладки
-        } catch (e) {
-          print("Error while parsing JWT payload: $e");
-          _showErrorDialog(context, "Ошибка при обработке токена");
-        }
+    if (token != null) {
+      try {
+        Map<String, dynamic> payload = Jwt.parseJwt(token!);
+        role = payload['role'];
+        binClient = payload['bin'];
+        manufacturerIndustryName = payload['manufacturerIndustry'];
+
+        // Сохраняем данные в SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('authToken', token!);
+        await prefs.setString('role', role ?? '');
+        await prefs.setString('binClient', binClient ?? '');
+        await prefs.setString('manufacturerIndustryName', manufacturerIndustryName ?? '');
+
+        // Вывод данных для отладки
+        print('Token saved: $token');
+        print('Role saved: $role');
+        print('Bin saved: $binClient');
+        print('Manufacturer Industry saved: $manufacturerIndustryName');
+
+      } catch (e) {
+        print("Error while parsing JWT payload: $e");
+        _showErrorDialog(context, "Ошибка при обработке токена");
       }
     }
+  } else {
+    _showErrorDialog(context, "Неправильный логин или пароль");
   }
+}
+
+
+
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(

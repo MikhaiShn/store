@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 export 'package:shop_apllication_1/globals.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Color greyTransparentColor = Color.fromRGBO(238, 236, 236, 0.938);
 Color color = Color.fromARGB(255, 57, 86, 218).withOpacity(0.5);
-TextStyle textH1 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
-TextStyle textH2 = TextStyle(fontSize: 18);
-TextStyle textH3 = TextStyle(fontSize: 20);
+TextStyle textH1 = TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold);
+TextStyle textH2 = TextStyle(fontSize: 18.sp);
+TextStyle textH3 = TextStyle(fontSize: 14.sp);
 String? binClient;
 String? role;
 File? photo;

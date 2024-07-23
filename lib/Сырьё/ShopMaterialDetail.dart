@@ -44,12 +44,13 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
   String checkCalculate = '';
   String itemsID = '';
   RawMaterial? material;
+  List<String> materialsSelected = [];
   @override
   void initState() {
     // TODO: implement initState
     title = 'Группа: ${widget.groupName}';
     super.initState();
-    loadSavedResponse();
+    getMaterialInGroup();
   }
 
   Future<void> addRawMaterial() async {
@@ -163,14 +164,15 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
         });
   }
 
-  void navigateToDetailPage() {
+  void navigateToDetailPage(RawMaterial material) {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             RawMaterialDetailPage(
-                material: material!,
-                updateMaterialDetail: updateMaterialDetail(material!.id)),
+          materialDetail: material,
+          updateMaterialDetail: updateMaterialDetail(material.id),
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(-1.0, 0.0);
           const end = Offset.zero;
@@ -199,43 +201,43 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
     }
   }
 
-Future<void> getMaterialInGroup() async {
-  final response = await http.get(Uri.parse(
-      'https://baskasha-353162ef52af.herokuapp.com/raw/${widget.idIndustry}/groups/${widget.idGroup}/items'));
-  if (response.statusCode == 200) {
-    final List<dynamic> responseBody = jsonDecode(response.body);
-    List<RawMaterial> getListMaterial = responseBody
-        .map((data) => RawMaterial.fromJson(data as Map<String, dynamic>))
-        .toList();
-    setState(() {
-      rawMaterial = getListMaterial;
-    });
+  Future<void> getMaterialInGroup() async {
+    final response = await http.get(Uri.parse(
+        'https://baskasha-353162ef52af.herokuapp.com/raw/${widget.idIndustry}/groups/${widget.idGroup}/items'));
+    if (response.statusCode == 200) {
+      print(widget.idGroup);
+      final List<dynamic> responseBody = jsonDecode(response.body);
+      List<RawMaterial> getListMaterial = responseBody
+          .map((data) => RawMaterial.fromJson(data as Map<String, dynamic>))
+          .toList();
+      setState(() {
+        rawMaterial = getListMaterial;
+      });
+      // Сохраняем JSON-ответ в SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('saved_response', jsonEncode(responseBody));
+    } else {
+      print('Failed to fetch data: ${response.statusCode}');
+    }
+  }
 
-    // Сохраняем JSON-ответ в SharedPreferences
+  void loadSavedResponse() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('saved_response', jsonEncode(responseBody));
-  } else {
-    print('Failed to fetch data: ${response.statusCode}');
+    String? savedResponse = prefs.getString('saved_response');
+    if (savedResponse != null) {
+      // Парсим сохранённый JSON-ответ и используем его
+      final List<dynamic> responseBody = jsonDecode(savedResponse);
+      List<RawMaterial> getListMaterial = responseBody
+          .map((data) => RawMaterial.fromJson(data as Map<String, dynamic>))
+          .toList();
+      setState(() {
+        rawMaterial = getListMaterial;
+      });
+    } else {
+      // Если данных нет, делаем GET-запрос
+      getMaterialInGroup();
+    }
   }
-}
-void loadSavedResponse() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? savedResponse = prefs.getString('saved_response');
-  if (savedResponse != null) {
-    // Парсим сохранённый JSON-ответ и используем его
-    final List<dynamic> responseBody = jsonDecode(savedResponse);
-    List<RawMaterial> getListMaterial = responseBody
-        .map((data) => RawMaterial.fromJson(data as Map<String, dynamic>))
-        .toList();
-    setState(() {
-      rawMaterial = getListMaterial;
-    });
-  } else {
-    // Если данных нет, делаем GET-запрос
-    getMaterialInGroup();
-  }
-}
-
 
   Future<void> updateMaterialDetail(String idMaterial) async {
     try {
@@ -327,7 +329,8 @@ void loadSavedResponse() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(title),
+          title: Center(child: Text(title)),
+          backgroundColor: Colors.grey[200],
           automaticallyImplyLeading:
               checAppBar == 'Иконки' && checkCalculate == 'Калькуляция'
                   ? false
@@ -340,16 +343,6 @@ void loadSavedResponse() async {
                     },
                     icon: Icon(Icons.add),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        checAppBar = '';
-                        checkCalculate = '';
-                        title = 'Raw Materials Detail';
-                      });
-                    },
-                    icon: Icon(Icons.delete),
-                  ),
                 ]
               : checAppBar == 'Иконки'
                   ? [
@@ -360,11 +353,58 @@ void loadSavedResponse() async {
                         },
                       ),
                       IconButton(
+                        onPressed: () async {
+                          if (materialsSelected.isNotEmpty) {
+                            // Подтверждение удаления
+                            bool confirmDelete = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Удалить материалы?'),
+                                  content: Text(
+                                      'Вы уверены, что хотите удалить выбранные материалы?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: Text('Отмена'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                      child: Text('Удалить'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (confirmDelete) {
+                              // Удаление выбранных материалов
+                              for (String id in materialsSelected) {
+                                await deleteRawMaterial(id);
+                              }
+                              setState(() {
+                                // Обновление состояния после удаления
+                                rawMaterial.removeWhere((item) => materialsSelected.remove(item.id));
+                                materialsSelected.clear();
+                                checAppBar = '';
+                                checkCalculate = '';
+                                title = 'Группа ${widget.groupName}';
+                              });
+                            }
+                          }
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                      IconButton(
                         onPressed: () {
                           setState(() {
                             checAppBar = '';
                             checkCalculate = '';
                             title = 'Группа ${widget.groupName}';
+                            print(materialsSelected);
+                            materialsSelected = [];
                           });
                         },
                         icon: Icon(Icons.close),
@@ -375,62 +415,39 @@ void loadSavedResponse() async {
       body: ListView.builder(
         itemCount: rawMaterial.length,
         itemBuilder: (context, index) {
-          material = rawMaterial[index];
-          bool isSelected = selectedIndex == index;
-          return Dismissible(
-            key: Key(material!.id),
-            confirmDismiss: (direction) async {
-              await deleteRawMaterial(material!.id);
-              return true;
-            },
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(
-                Icons.delete,
-                color: Colors.white,
-              ),
-            ),
-            child: GestureDetector(
-              onLongPress: () {
+          final item = rawMaterial[index];
+          final isSelected = materialsSelected.contains(item.id);
+          return GestureDetector(
+            onLongPress: () {
+              setState(() {
+                checAppBar = 'Иконки';
+                checkCalculate = widget.checkCalculate;
+                materialsSelected.add(item.id);
+              });
+
+              if (checAppBar == 'Иконки' && checkCalculate == 'Калькуляция') {
+                title = 'Выберите сырье';
+                selectedMaterials = item.id;
                 setState(() {
-                  checAppBar = 'Иконки';
-                  checkCalculate = widget.checkCalculate;
+                  selectedIndex = (selectedIndex == index)
+                      ? -1
+                      : index; // Выделяем/снимаем выделение
                 });
-                if (checAppBar == 'Иконки' && checkCalculate == 'Калькуляция') {
-                  title = 'Выберите сырье';
-                  selectedMaterials = material!.id;
-                  setState(() {
-                    if (selectedIndex == index) {
-                      selectedIndex =
-                          -1; // Если выбран тот же элемент, снимаем выделение
-                    } else {
-                      selectedIndex = index; // Иначе выделяем данный элемент
-                    }
-                  });
-                } else if (checAppBar == 'Иконки') {
-                  title = 'Выберите действие';
-                }
-              },
-              child: Card(
-                margin: EdgeInsets.all(10),
-                color: isSelected ? Colors.green : Colors.white,
-                child: ListTile(
-                  title: Text(material!.itemRawName),
-                  subtitle: Text('Item Code: ${material!.codeitem}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_forward),
-                        onPressed: () {
-                          navigateToDetailPage();
-                        },
-                      ),
-                    ],
-                  ),
+              } else if (checAppBar == 'Иконки') {
+                title = 'Выберите действие';
+              }
+            },
+            child: Card(
+              margin: EdgeInsets.all(10),
+              color: isSelected ? Colors.green : Colors.white,
+              child: ListTile(
+                title: Text(item.itemRawName),
+                subtitle: Text('Item Code: ${item.codeitem}'),
+                trailing: IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: () {
+                    navigateToDetailPage(item);
+                  },
                 ),
               ),
             ),
@@ -499,100 +516,119 @@ void loadSavedResponse() async {
 }
 
 class RawMaterialDetailPage extends StatelessWidget {
-  final RawMaterial material;
+  final RawMaterial materialDetail;
   final Future<void> updateMaterialDetail;
-  const RawMaterialDetailPage(
-      {Key? key, required this.material, required this.updateMaterialDetail})
-      : super(key: key);
+
+  const RawMaterialDetailPage({
+    Key? key,
+    required this.materialDetail,
+    required this.updateMaterialDetail,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Детали Сырья: ${material.rawModel}'),
+        title: Text('Детали Сырья: ${materialDetail.rawModel ?? 'Не указано'}'),
         actions: [
           IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              buildTextFormField(
-                                  'Item Name', itemRawNameController),
-                              buildTextFormField(
-                                  'Seller BIN', sellerRawBINController),
-                              buildTextFormField(
-                                  'Seller Contact', selerRawContactController),
-                              buildTextFormField(
-                                  'Seller Country', selerRawCountryController),
-                              buildTextFormField(
-                                  'Import (true/false)', rawImportController),
-                              buildTextFormField(
-                                  'Item Code', rawCodeitemController),
-                              buildTextFormField(
-                                  'Raw Season', rawSezonController),
-                              buildTextFormField(
-                                  'Raw Model', rawModelController),
-                              buildTextFormField(
-                                  'Raw Comment', rawCommentController),
-                              buildTextFormField(
-                                  'Raw Person', rawPersonController),
-                              buildTextFormField('Raw Size', rawSizeController),
-                              buildTextFormField(
-                                  'Raw Color', rawColorController),
-                              buildTextFormField(
-                                  'Quantity', rawQuantityController),
-                              buildTextFormField('Unit', rawUnitController),
-                              buildTextFormField(
-                                  'Purchase Price', rawPurchasepriceController),
-                              buildTextFormField(
-                                  'Selling Price', rawSellingpriceController),
-                              buildTextFormField(
-                                  'Expiry Date', rawExpiryDateController),
-                              ElevatedButton(
-                                onPressed: () {
-                                  ;
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Update'),
-                              ),
-                            ],
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Dialog(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          buildTextFormField(
+                              'Item Name', itemRawNameController),
+                          buildTextFormField(
+                              'Seller BIN', sellerRawBINController),
+                          buildTextFormField(
+                              'Seller Contact', selerRawContactController),
+                          buildTextFormField(
+                              'Seller Country', selerRawCountryController),
+                          buildTextFormField(
+                              'Import (true/false)', rawImportController),
+                          buildTextFormField(
+                              'Item Code', rawCodeitemController),
+                          buildTextFormField('Raw Season', rawSezonController),
+                          buildTextFormField('Raw Model', rawModelController),
+                          buildTextFormField(
+                              'Raw Comment', rawCommentController),
+                          buildTextFormField('Raw Person', rawPersonController),
+                          buildTextFormField('Raw Size', rawSizeController),
+                          buildTextFormField('Raw Color', rawColorController),
+                          buildTextFormField('Quantity', rawQuantityController),
+                          buildTextFormField('Unit', rawUnitController),
+                          buildTextFormField(
+                              'Purchase Price', rawPurchasepriceController),
+                          buildTextFormField(
+                              'Selling Price', rawSellingpriceController),
+                          buildTextFormField(
+                              'Expiry Date', rawExpiryDateController),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Вставьте логику для обновления
+                              Navigator.pop(context);
+                            },
+                            child: Text('Update'),
                           ),
-                        ),
-                      );
-                    });
-              },
-              icon: Icon(Icons.edit))
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            icon: Icon(Icons.edit),
+          ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildDetailCard('Название предмета', material.itemRawName),
-              buildDetailCard('BIN продавца', material.sellerBin),
-              buildDetailCard('Контакт продавца', material.sellerRawContact),
-              buildDetailCard('Страна продавца', material.sellerRawCountry),
-              buildDetailCard('Импорт', material.itemImport ? 'Да' : 'Нет'),
-              buildDetailCard('Код предмета', material.codeitem),
-              buildDetailCard('Сезон сырья', material.rawSezon),
-              buildDetailCard('Модель сырья', material.rawModel),
-              buildDetailCard('Комментарий к сырью', material.rawComment),
-              buildDetailCard('Ответственное лицо', material.rawPerson),
-              buildDetailCard('Размер сырья', material.rawSize),
-              buildDetailCard('Цвет сырья', material.rawColor),
-              buildDetailCard('Количество', material.rawQuantity.toString()),
-              buildDetailCard('Единица измерения', material.rawUnit),
-              buildDetailCard(
-                  'Закупочная цена', material.rawPurchaseprice.toString()),
-              buildDetailCard(
-                  'Цена продажи', material.rawSellingprice.toString()),
-              buildDetailCard('Срок годности', material.rawExpiryDate),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildDetailCard(
+                        'Название предмета', materialDetail.itemRawName),
+                    buildDetailCard('BIN продавца', materialDetail.sellerBin),
+                    buildDetailCard(
+                        'Контакт продавца', materialDetail.sellerRawContact),
+                    buildDetailCard(
+                        'Страна продавца', materialDetail.sellerRawCountry),
+                    buildDetailCard('Импорт',
+                        materialDetail.itemImport == true ? 'Да' : 'Нет'),
+                    buildDetailCard('Код предмета', materialDetail.codeitem),
+                    buildDetailCard('Сезон сырья', materialDetail.rawSezon),
+                    buildDetailCard('Модель сырья', materialDetail.rawModel),
+                    buildDetailCard(
+                        'Комментарий к сырью', materialDetail.rawComment),
+                    buildDetailCard(
+                        'Ответственное лицо', materialDetail.rawPerson),
+                    buildDetailCard('Размер сырья', materialDetail.rawSize),
+                    buildDetailCard('Цвет сырья', materialDetail.rawColor),
+                    buildDetailCard('Количество',
+                        materialDetail.rawQuantity?.toString() ?? 'Не указано'),
+                    buildDetailCard(
+                        'Единица измерения', materialDetail.rawUnit),
+                    buildDetailCard(
+                        'Закупочная цена',
+                        materialDetail.rawPurchaseprice?.toString() ??
+                            'Не указано'),
+                    buildDetailCard(
+                        'Цена продажи',
+                        materialDetail.rawSellingprice?.toString() ??
+                            'Не указано'),
+                    buildDetailCard(
+                        'Срок годности', materialDetail.rawExpiryDate),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -600,7 +636,7 @@ class RawMaterialDetailPage extends StatelessWidget {
     );
   }
 
-  Widget buildDetailCard(String title, String value) {
+  Widget buildDetailCard(String title, String? value) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10.0),
       child: ListTile(
@@ -608,7 +644,7 @@ class RawMaterialDetailPage extends StatelessWidget {
           title,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(value),
+        subtitle: Text(value ?? 'Не указано'),
       ),
     );
   }

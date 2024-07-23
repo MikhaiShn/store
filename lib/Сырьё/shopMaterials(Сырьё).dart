@@ -27,11 +27,6 @@ class ShopMaterials extends StatefulWidget {
 class _ShopMaterialsState extends State<ShopMaterials> {
   TextEditingController newMaterials = TextEditingController();
   List<Manufacturer> manufacturerClient = []; // Список для хранения материалов
-  String?
-      selectedMaterialId; // Переменная для сохранения _id выбранного материала
-  String? groupID; //Хранение id группы
-  List<GroupMaterial> groupMaterials = []; // Добавляем список групп материалов
-  List<RawMaterial> rawMaterials = []; // Добавляем список айтемов
 
   Future<void> getMaterial() async {
     final response = await http.get(
@@ -42,47 +37,40 @@ class _ShopMaterialsState extends State<ShopMaterials> {
         'Authorization': 'Bearer ${widget.token}',
       },
     );
-
     if (response.statusCode == 200) {
       print('Сырье получено успешно');
       dynamic responseData = jsonDecode(response.body);
 
-      // Проверяем тип данных
       if (responseData is List) {
-        // Преобразуем каждый элемент в объект типа Manufacturer
         List<Manufacturer> manufacturers = responseData
             .map<Manufacturer>((json) => Manufacturer.fromJson(json))
             .toList();
-
         setState(() {
           manufacturerClient = manufacturers;
         });
       } else if (responseData is Map<String, dynamic>) {
-        // Если вернулся один объект, а не список, можно обработать его как один объект
         Manufacturer manufacturer = Manufacturer.fromJson(responseData);
         setState(() {
           manufacturerClient = [manufacturer];
         });
-        selectedMaterialId =
-            manufacturer.id; // Предполагается, что у Manufacturer есть поле id
       } else {
         print('Ошибка: полученные данные не соответствуют ожидаемому формату');
       }
     } else {
-      // Обработка ошибок запроса, например:
       print('Failed to fetch data: ${response.statusCode}');
     }
   }
 
-  Future<void> deletRawGroup() async {
+  Future<void> deletRawGroup(String selectedMaterialId, String groupID) async {
     final response = await http.delete(Uri.parse(
         'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/raw/$selectedMaterialId/groups/$groupID'));
     if (response.statusCode == 200) {
       print('Группа успешно удалена из сырья');
+      await getMaterial(); // Обновляем данные после удаления
     }
   }
 
-  Future<void> addMaterialCategory() async {
+  Future<void> addMaterialCategory(String selectedMaterialId) async {
     final url = Uri.parse(
         'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/raw/$selectedMaterialId/groups');
 
@@ -93,30 +81,25 @@ class _ShopMaterialsState extends State<ShopMaterials> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
         },
-        body: jsonEncode({
-          "groupName": rawGroupNameController.text,
-          "items":
-              [] // Если требуется добавление элементов, их нужно добавить сюда
-        }),
+        body:
+            jsonEncode({"groupName": rawGroupNameController.text, "items": []}),
       );
 
       if (response.statusCode == 201) {
         print('Группа сырья добавлена успешно');
-        // Выполнение каких-либо действий после успешного добавления
-        getMaterial(); // Возможно, это ваш метод для получения обновленных данных
+        await getMaterial(); // Обновляем данные после добавления
         rawGroupNameController
             .clear(); // Очистка поля ввода названия группы сырья
       } else {
         print('Ошибка при добавлении группы сырья: ${response.statusCode}');
-        // Обработка ошибок, если необходимо
       }
     } catch (error) {
       print('Ошибка при выполнении операции: $error');
-      // Обработка ошибок, если необходимо
     }
   }
 
-  Future<void> updateGroupName() async {
+  Future<void> updateGroupName(
+      String selectedMaterialId, String groupID) async {
     final response = await http.put(
       Uri.parse(
         'https://sheltered-peak-32126-a4bd3f8cb65e.herokuapp.com/raw/$selectedMaterialId/groups/$groupID',
@@ -132,10 +115,9 @@ class _ShopMaterialsState extends State<ShopMaterials> {
 
     if (response.statusCode == 200) {
       print('Название группы успешно изменено');
-      getMaterial();
+      await getMaterial(); // Обновляем данные после изменения названия
     } else {
       print('Ошибка при изменении названия группы: ${response.statusCode}');
-      // Обработка ошибок, если необходимо
     }
   }
 
@@ -150,8 +132,8 @@ class _ShopMaterialsState extends State<ShopMaterials> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Text('Сырьё'),
-        backgroundColor: Colors.blue,
+        title: Center(child: Text('Сырьё')),
+        backgroundColor: Colors.grey[100],
       ),
       body: ListView.builder(
         itemCount: manufacturerClient.length,
@@ -160,11 +142,10 @@ class _ShopMaterialsState extends State<ShopMaterials> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: manufacturer.materials.map((materialGroup) {
-              groupID = materialGroup.id;
               return Dismissible(
                 key: Key(materialGroup.id),
                 confirmDismiss: (direction) async {
-                  await deletRawGroup();
+                  await deletRawGroup(manufacturer.id, materialGroup.id);
                   return true;
                 },
                 direction: DismissDirection.endToStart,
@@ -192,7 +173,8 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                                       newRawGroupController),
                                   ElevatedButton(
                                       onPressed: () {
-                                        updateGroupName();
+                                        updateGroupName(
+                                            manufacturer.id, materialGroup.id);
                                         Navigator.pop(context);
                                       },
                                       child: Text('Изменить'))
@@ -202,109 +184,180 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                           );
                         });
                   },
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MaterialDetailPage(
-                          token: widget.token,
-                          getMaterial: getMaterial,
-                          groupName: materialGroup.groupName,
-                          rawMaterial: materialGroup.items,
-                          idIndustry: selectedMaterialId!,
-                          idGroup: materialGroup.id,
-                          checkCalculate: widget.checkCalculate!, calculationID: widget.calculationID, modelsID: widget.modelsID, sizeID: widget.sizeID,
+                  onTap: () {},
+                  child: widget.checkCalculate == 'Калькуляция'
+                      ? Card(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 6, // Более выраженная тень
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Группа сырья: ${materialGroup.groupName}',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Количество элементов: ${materialGroup.items.length}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation,
+                                            secondaryAnimation) {
+                                          const begin = Offset(1.0, 0.0);
+                                          const end = Offset.zero;
+                                          const curve = Curves.easeInOut;
+
+                                          var tween =
+                                              Tween(begin: begin, end: end);
+                                          var offsetAnimation = animation.drive(
+                                              tween.chain(
+                                                  CurveTween(curve: curve)));
+                                          return SlideTransition(
+                                            position: offsetAnimation,
+                                            child: MaterialDetailPage(
+                                              token: widget.token,
+                                              getMaterial: getMaterial,
+                                              groupName:
+                                                  materialGroup.groupName,
+                                              rawMaterial: materialGroup.items,
+                                              idIndustry: manufacturer.id,
+                                              idGroup: materialGroup.id,
+                                              checkCalculate:
+                                                  widget.checkCalculate!,
+                                              calculationID:
+                                                  widget.calculationID,
+                                              modelsID: widget.modelsID,
+                                              sizeID: widget.sizeID,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(Icons.arrow_forward_ios),
+                                  color: Colors.blueAccent,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Card(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 4, // Тень под картой
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Группа сырья: ${materialGroup.groupName}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Количество элементов: ${materialGroup.items.length}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // Добавление кнопки или дополнительного элемента
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                              secondaryAnimation) {
+                                            const begin = Offset(1.0, 0.0);
+                                            const end = Offset.zero;
+                                            const curve = Curves.easeInOut;
+
+                                            var tween =
+                                                Tween(begin: begin, end: end);
+                                            var offsetAnimation =
+                                                animation.drive(tween.chain(
+                                                    CurveTween(curve: curve)));
+                                            return SlideTransition(
+                                              position: offsetAnimation,
+                                              child: MaterialDetailPage(
+                                                token: widget.token,
+                                                getMaterial: getMaterial,
+                                                groupName:
+                                                    materialGroup.groupName,
+                                                rawMaterial:
+                                                    materialGroup.items,
+                                                idIndustry: manufacturer.id,
+                                                idGroup: materialGroup.id,
+                                                checkCalculate:
+                                                    widget.checkCalculate!,
+                                                calculationID:
+                                                    widget.calculationID,
+                                                modelsID: widget.modelsID,
+                                                sizeID: widget.sizeID,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Text('Подробнее'),
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.blueAccent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    margin: EdgeInsets.all(10),
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Группа сырья: ${materialGroup.groupName}', // Отображаем название группы материала
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Количество элементов: ${materialGroup.items.length}', // Отображаем количество элементов в группе
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
               );
             }).toList(),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                child: Stack(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      height: MediaQuery.of(context).size.height * 0.65,
-                      padding: EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(height: 20),
-                            Center(
-                              child: Text('Добавить группу', style: textH1),
-                            ),
-                            buildTextFormField(
-                              'Новая группа',
-                              rawGroupNameController,
-                            ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await addMaterialCategory();
-                                  Navigator.of(context).pop();
-                                  await getMaterial();
-                                },
-                                child: Text('Добавить'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 0.0,
-                      top: 0.0,
-                      child: IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        child: Icon(Icons.add),
       ),
     );
   }

@@ -44,7 +44,7 @@ class _ShopHomeState extends State<ShopHome> {
                 ),
 Container(
   width: double.infinity,
-  height: MediaQuery.of(context).size.height * 0.1,
+  height: MediaQuery.of(context).size.height * 0.18,
   child: Padding(
     padding: const EdgeInsets.symmetric(horizontal: 15),
     child: Row(

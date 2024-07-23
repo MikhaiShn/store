@@ -29,7 +29,7 @@ class _ShopCalculationState extends State<ShopCalculation> {
     });
 
     final response = await http.get(
-      Uri.parse('https://baskasha-353162ef52af.herokuapp.com/calculation'),
+      Uri.parse('https://baskasha-353162ef52af.herokuapp.com/calculation/bin/$binClient'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${widget.token}',
@@ -94,9 +94,10 @@ class _ShopCalculationState extends State<ShopCalculation> {
         'Authorization': 'Bearer ${widget.token}',
       },
       body: jsonEncode({
-        "size": sizeCalculateController.text,
-        "components": [],
-        "laborCosts": []
+        "costSize": sizeCalculateController.text,
+        "costUnit": "Пара",
+        "sizeComment": "Комментарий",
+        "codeitem": "001"
       }),
     );
     print('$modalId');
@@ -268,92 +269,99 @@ class _ShopCalculationState extends State<ShopCalculation> {
           ),
         ],
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : calculate.isEmpty
-              ? Center(child: Text('Данные о калькуляции отсутствуют'))
-              : ListView.builder(
-                  itemCount: calculate.length,
-                  itemBuilder: (context, index) {
-                    final takeListCalculate = calculate[index];
-                    return Card(
-                      color: Colors.white,
-                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: takeListCalculate.itemModels.length,
-                            itemBuilder: (context, idx) {
-                              final itemModel =
-                                  takeListCalculate.itemModels[idx];
-                              return GestureDetector(
-                                onLongPress: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return Dialog(
-                                        child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.2,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.2,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                  'Вы уверены что хотите удалить?'),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      deleteModel(
-                                                          takeListCalculate.id,
-                                                          itemModel.id);
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text('Удалить'),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text('Отмена'),
-                                                  )
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Card(
-                                  color: Colors.grey[200],
-                                  child: Column(
-                                    children: [
-                                      ExpansionTile(
-                                          title: ListTile(
-                                            title: Text(
-                                                'Модель: ${itemModel.modelName}'),
-                                            trailing: Row(
-                                              mainAxisSize: MainAxisSize.min,
+     body: isLoading
+    ? Center(child: CircularProgressIndicator())
+    : calculate.isEmpty
+        ? Center(child: Text('Данные о калькуляции отсутствуют'))
+        : ListView.builder(
+            itemCount: calculate.length,
+            itemBuilder: (context, index) {
+              final takeListCalculate = calculate[index];
+              return Column(
+                children: [
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: takeListCalculate.itemModels.length,
+                          itemBuilder: (context, idx) {
+                            final itemModel = takeListCalculate.itemModels[idx];
+                            return GestureDetector(
+                              onLongPress: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+                                      child: Container(
+                                        width: MediaQuery.of(context).size.width * 0.2,
+                                        height: MediaQuery.of(context).size.height * 0.2,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Вы уверены что хотите удалить?'),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
-                                                IconButton(
-                                                  icon: Icon(Icons.add),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    deleteModel(takeListCalculate.id, itemModel.id);
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('Удалить'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('Отмена'),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    ExpansionTile(
+                                        title: ListTile(
+                                          title: Text('Модель: ${itemModel.modelName}'),
+                                          trailing: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.add),
+                                                onPressed: () {
+                                                  showDialogPutAndDelete(
+                                                      takeListCalculate.id,
+                                                      'Добавить новую вариацию размера',
+                                                      'Размер',
+                                                      'Назаж',
+                                                      'Сохранить',
+                                                      sizeCalculateController,
+                                                      () => postNewSize(takeListCalculate.id, itemModel.id));
+                                                },
+                                              ),
+                                              IconButton(
                                                   onPressed: () {
                                                     showDialogPutAndDelete(
                                                         takeListCalculate.id,
@@ -362,195 +370,109 @@ class _ShopCalculationState extends State<ShopCalculation> {
                                                         'Отмена',
                                                         'Сохранить',
                                                         putModalCalculateController,
-                                                        () => putModel(
-                                                            takeListCalculate
-                                                                .id,
-                                                            itemModel.id));
+                                                        () => putModel(takeListCalculate.id, itemModel.id));
                                                   },
-                                                ),
-                                                IconButton(
-                                                    onPressed: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            title: Text(
-                                                                'Изменить название модели'),
-                                                            content: TextField(
-                                                              controller:
-                                                                  putModalCalculateController,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      labelText:
-                                                                          'Новое название модели'),
-                                                            ),
-                                                            actions: [
-                                                              TextButton(
-                                                                child: Text(
-                                                                    'Отмена'),
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                              ),
-                                                              TextButton(
-                                                                child: Text(
-                                                                    'Изменить'),
-                                                                onPressed: () {
-                                                                  putModel(
-                                                                      takeListCalculate
-                                                                          .id,
-                                                                      itemModel
-                                                                          .id);
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
+                                                  icon: Icon(Icons.edit))
+                                            ],
+                                          ),
+                                        ),
+                                        children: [
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemCount: itemModel.sizeVariations.length,
+                                            itemBuilder: (context, idx) {
+                                              final itemSize = itemModel.sizeVariations[idx];
+                                              return GestureDetector(
+                                                onLongPress: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return Dialog(
+                                                        child: Container(
+                                                          width: MediaQuery.of(context).size.width * 0.2,
+                                                          height: MediaQuery.of(context).size.height * 0.2,
+                                                          child: Column(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Text('Вы уверены что хотите удалить?'),
+                                                              Row(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                children: [
+                                                                  ElevatedButton(
+                                                                    onPressed: () {
+                                                                      deleteSize(takeListCalculate.id, itemModel.id, itemSize.id);
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    child: Text('Удалить'),
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                    onPressed: () {
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                    child: Text('Отмена'),
+                                                                  )
+                                                                ],
                                                               ),
                                                             ],
-                                                          );
-                                                        },
+                                                          ),
+                                                        ),
                                                       );
                                                     },
-                                                    icon: Icon(Icons.edit))
-                                              ],
-                                            ),
-                                          ),
-                                          children: [
-                                            ListView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  NeverScrollableScrollPhysics(),
-                                              itemCount: itemModel
-                                                  .sizeVariations.length,
-                                              itemBuilder: (context, idx) {
-                                                final itemSize = itemModel
-                                                    .sizeVariations[idx];
-                                                return GestureDetector(
-                                                  onLongPress: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        return Dialog(
-                                                          child: Container(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.2,
-                                                            height: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.2,
-                                                            child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                    'Вы уверены что хотите удалить?'),
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceAround,
-                                                                  children: [
-                                                                    ElevatedButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        deleteSize(
-                                                                            takeListCalculate.id,
-                                                                            itemModel.id,
-                                                                            itemSize.id);
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                      },
-                                                                      child: Text(
-                                                                          'Удалить'),
-                                                                    ),
-                                                                    ElevatedButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                      },
-                                                                      child: Text(
-                                                                          'Отмена'),
-                                                                    )
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
+                                                  );
+                                                },
+                                                child: Card(
+                                                  color: Colors.white,
+                                                  child: ListTile(
+                                                    title: Text('Размер: ${itemSize.costSize}'),
+                                                    trailing: IconButton(
+                                                      onPressed: () {
+                                                        showDialogPutAndDelete(
+                                                          takeListCalculate.id,
+                                                          'Изменить название размера',
+                                                          'Новое название',
+                                                          'Отмена',
+                                                          'Сохранить',
+                                                          putSizeCalculateController,
+                                                          () => putsize(takeListCalculate.id, itemModel.id, itemSize.id),
                                                         );
                                                       },
-                                                    );
-                                                  },
-                                                  child: Card(
-                                                    color: Colors.white,
-                                                    child: ListTile(
-                                                      title: Text(
-                                                          'Размер: ${itemSize.size}'),
-                                                      trailing: IconButton(
-                                                        onPressed: () {
-                                                          showDialogPutAndDelete(
-                                                            takeListCalculate
-                                                                .id,
-                                                            'Изменить название размера',
-                                                            'Новое название',
-                                                            'Отмена',
-                                                            'Сохранить',
-                                                            putSizeCalculateController,
-                                                            () => putsize(
-                                                                takeListCalculate
-                                                                    .id,
-                                                                itemModel.id,
-                                                                itemSize
-                                                                    .id), // Передаем функцию, которая вызовет putsize по нажатию
-                                                          );
-                                                        },
-                                                        icon: Icon(Icons.edit),
-                                                      ),
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ShopCalculationDetail(
-                                                                    sizeID:
-                                                                        itemSize
-                                                                            .id,
-                                                                    modelsID:
-                                                                        itemModel
-                                                                            .id,
-                                                                    calculationID:
-                                                                        takeListCalculate
-                                                                            .id,
-                                                                    token: widget
-                                                                        .token),
-                                                          ),
-                                                        );
-                                                      },
+                                                      icon: Icon(Icons.edit),
                                                     ),
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => ShopCalculationDetail(
+                                                              sizeID: itemSize.id,
+                                                              modelsID: itemModel.id,
+                                                              calculationID: takeListCalculate.id,
+                                                              token: widget.token),
+                                                        ),
+                                                      );
+                                                    },
+                                                    
                                                   ),
-                                                );
-                                              },
-                                            ),
-                                          ]),
-                                    ],
-                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ]),
+                                        SizedBox(height: 20,)
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 40), // Отступ между контейнерами
+                ],
+              );
+            },
+          ),
     );
   }
 }
