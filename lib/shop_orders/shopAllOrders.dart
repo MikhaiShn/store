@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/modals/productModal.dart';
-import '../modals/zakazModal.dart';
+import 'package:shop_apllication_1/modals_file/product_modals.dart';
+import '../modals_file/order_modals.dart';
 
 class ShopAllOrders extends StatefulWidget {
   final String token;

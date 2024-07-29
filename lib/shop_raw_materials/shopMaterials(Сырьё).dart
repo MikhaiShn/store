@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/Сырьё/ShopMaterialDetail.dart';
+import 'package:shop_apllication_1/shop_raw_materials/ShopMaterialDetail.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/modals/rawMaterialsModal.dart';
+import 'package:shop_apllication_1/modals_file/raw_materials_modals.dart';
 
 class ShopMaterials extends StatefulWidget {
   final String? token;
@@ -169,7 +169,7 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                               height: MediaQuery.sizeOf(context).height * 0.2,
                               child: Column(
                                 children: [
-                                  buildTextFormField('Новое название группы',
+                                  buildTextFormField('Изменение название группы',
                                       newRawGroupController),
                                   ElevatedButton(
                                       onPressed: () {
@@ -204,7 +204,7 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Группа сырья: ${materialGroup.groupName}',
+                                        materialGroup.groupName,
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -281,7 +281,7 @@ class _ShopMaterialsState extends State<ShopMaterials> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Группа сырья: ${materialGroup.groupName}',
+                                  materialGroup.groupName,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

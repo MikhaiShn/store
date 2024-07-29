@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/modals/calculateModals.dart';
-import 'package:shop_apllication_1/Калькуляция/shopCalculationDetail.dart';
+import 'package:shop_apllication_1/modals_file/calculation_modals.dart';
+import 'package:shop_apllication_1/calculation/shop_calculation_detail.dart';
 
 class ShopCalculation extends StatefulWidget {
   final String token;

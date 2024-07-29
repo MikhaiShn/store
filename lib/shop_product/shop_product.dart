@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-import 'package:shop_apllication_1/modals/productModal.dart';
+import 'package:shop_apllication_1/modals_file/product_modals.dart';
+import 'package:shop_apllication_1/shop_product/shop_product_detail.dart';
 import 'package:shop_apllication_1/shop.dart';
-import 'package:shop_apllication_1/shopeHome(%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F).dart';
 
-import 'globals.dart';
+import '../globals.dart';
 
 class ShopProduct extends StatefulWidget {
   const ShopProduct({super.key});
@@ -25,6 +25,8 @@ class _ShopProductState extends State<ShopProduct> {
   String title = 'Готовая продукция';
   String companyProductID = '';
   String modelID = '';
+
+
   @override
   void initState() {
     super.initState();
@@ -56,7 +58,6 @@ class _ShopProductState extends State<ShopProduct> {
   Future<void> getProduct() async {
     final url =
         'https://baskasha-353162ef52af.herokuapp.com/product/bin/$binClient';
-
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -276,34 +277,3 @@ class _ShopProductState extends State<ShopProduct> {
   }
 }
 
-class ShopProductDetail extends StatefulWidget {
-  ShopProductDetail({super.key, required this.sizeVariationProduct});
-  List<SizeVariationProduct> sizeVariationProduct;
-  @override
-  State<ShopProductDetail> createState() => _ShopProductDetailState();
-}
-
-class _ShopProductDetailState extends State<ShopProductDetail> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: ListView.builder(
-        itemCount: widget.sizeVariationProduct.length,
-        itemBuilder: (context, index) {
-          final sizeVariation = widget.sizeVariationProduct[index];
-          return ExpansionTile(
-            title: Text('Размер: ${sizeVariation.size}'),
-            children: [
-              ListTile(
-                title: Text('Цвет: ${sizeVariation.productSizeQuantity}'),
-                subtitle:
-                    Text('Количество: ${sizeVariation.costProdazhaPrice}'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}

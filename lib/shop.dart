@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shopeHome(%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F).dart';
+import 'package:shop_apllication_1/shop_home_main_page.dart';
 
-import 'shopJournal(Журнал).dart';
-import 'shopMenu(Меню).dart';
-import 'shopTMZ(ТМЗ).dart';
-import 'Сырьё/shopMaterials(Сырьё).dart';
+import 'shop_journal.dart';
+import 'shop_menu.dart';
+import 'shop_tmz/shop_tmz.dart';
+import 'shop_raw_materials/shopMaterials(Сырьё).dart';
 
 class Shop extends StatefulWidget {
   final String token;
@@ -33,13 +33,28 @@ class _ShopState extends State<Shop> {
         children: [
           ShopHome(),
           ShopJournal(),
-          ShopMaterials(token: token, checkCalculate: '', calculationID: '', modelsID: '', sizeID: '',),
-          ShopTMZ(token: token!,),
+          ShopMaterials(
+            token: widget.token,
+            checkCalculate: '',
+            calculationID: '',
+            modelsID: '',
+            sizeID: '',
+          ),
+          ShopTMZ(
+            token: widget.token,
+            checkCalculate: 'default_value', // Укажите правильное значение
+            calculationID: 'default_value', // Укажите правильное значение
+            modelsID: 'default_value', // Укажите правильное значение
+            sizeId: 'default_value', // Укажите правильное значение
+          ),
           ShopMenu(),
         ],
       ),
-      bottomNavigationBar:
-          buildBottomNavigatorBar(context, _selectedIndex, _onItemTapped),
+      bottomNavigationBar: buildBottomNavigatorBar(
+        context,
+        _selectedIndex,
+        _onItemTapped,
+      ),
     );
   }
 }

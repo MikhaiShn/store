@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shop_apllication_1/%D0%9A%D0%B0%D0%BB%D1%8C%D0%BA%D1%83%D0%BB%D1%8F%D1%86%D0%B8%D1%8F/shopCalculation.dart';
-import 'package:shop_apllication_1/%D0%A1%D1%8B%D1%80%D1%8C%D1%91/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
+import 'package:shop_apllication_1/calculation/shop_calculation.dart';
+import 'package:shop_apllication_1/shop_raw_materials/shopMaterials(%D0%A1%D1%8B%D1%80%D1%8C%D1%91).dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shopProduct%20(%D0%93%D0%BE%D1%82%D0%BE%D0%B2%D0%B0%D1%8F%20%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%86%D0%B8%D1%8F).dart';
-import 'Заказы/shopAllOrders.dart';
+import 'package:shop_apllication_1/shop_product/shop_product.dart';
+import 'shop_orders/shopAllOrders.dart';
 
 class ShopHome extends StatefulWidget {
   const ShopHome({super.key});

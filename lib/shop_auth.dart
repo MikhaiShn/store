@@ -4,7 +4,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shop.dart';
-export 'package:shop_apllication_1/modals/AuthModal.dart';
+export 'package:shop_apllication_1/modals_file/auth_modals.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -34,7 +34,6 @@ class _ShopLogInState extends State<ShopLogIn> {
 
   if (response.statusCode == 200) {
     final responseBody = jsonDecode(response.body);
-    print('Response body: $responseBody'); // Логирование тела ответа
     token = responseBody['token'];
 
     if (token != null) {
@@ -52,10 +51,7 @@ class _ShopLogInState extends State<ShopLogIn> {
         await prefs.setString('manufacturerIndustryName', manufacturerIndustryName ?? '');
 
         // Вывод данных для отладки
-        print('Token saved: $token');
-        print('Role saved: $role');
-        print('Bin saved: $binClient');
-        print('Manufacturer Industry saved: $manufacturerIndustryName');
+
 
       } catch (e) {
         print("Error while parsing JWT payload: $e");

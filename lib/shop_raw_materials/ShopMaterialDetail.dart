@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shop_apllication_1/%D0%9A%D0%B0%D0%BB%D1%8C%D0%BA%D1%83%D0%BB%D1%8F%D1%86%D0%B8%D1%8F/shopCalculationDetail.dart';
+import 'package:shop_apllication_1/calculation/shop_calculation_detail.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/modals/rawMaterialsModal.dart';
+import 'package:shop_apllication_1/modals_file/raw_materials_modals.dart';
 
 class MaterialDetailPage extends StatefulWidget {
   final String? token;
@@ -403,7 +403,6 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
                             checAppBar = '';
                             checkCalculate = '';
                             title = 'Группа ${widget.groupName}';
-                            print(materialsSelected);
                             materialsSelected = [];
                           });
                         },
@@ -432,6 +431,7 @@ class _MaterialDetailPageState extends State<MaterialDetailPage> {
                   selectedIndex = (selectedIndex == index)
                       ? -1
                       : index; // Выделяем/снимаем выделение
+                      print('selectedMaterials $selectedIndex');
                 });
               } else if (checAppBar == 'Иконки') {
                 title = 'Выберите действие';

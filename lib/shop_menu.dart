@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_apllication_1/globals.dart';
-import 'package:shop_apllication_1/shopLogIn(%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8).dart';
-import 'shopProduct (Готовая продукция).dart';
+import 'package:shop_apllication_1/shop_auth.dart';
+import 'shop_product/shop_product.dart';
 import 'package:http/http.dart' as http;
 
 class ShopMenu extends StatefulWidget {

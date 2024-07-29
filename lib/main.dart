@@ -5,7 +5,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_apllication_1/globals.dart';
 import 'package:shop_apllication_1/shop.dart';
-import 'shopLogIn(страница Авторизации).dart';
+import 'shop_auth.dart';
 
 Future<Map<String, String?>> getData() async {
   final prefs = await SharedPreferences.getInstance();
@@ -13,12 +13,6 @@ Future<Map<String, String?>> getData() async {
    role = prefs.getString('role');
    binClient = prefs.getString('binClient');
    manufacturerIndustryName = prefs.getString('manufacturerIndustryName');
-
-  // Принт токена и других данных
-  print('Token retrieved: $token');
-  print('Role retrieved: $role');
-  print('Bin retrieved: $binClient');
-  print('Manufacturer Industry retrieved: $manufacturerIndustryName');
 
   return {
     'token': token,
