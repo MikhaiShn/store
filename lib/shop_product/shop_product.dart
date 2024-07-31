@@ -26,7 +26,6 @@ class _ShopProductState extends State<ShopProduct> {
   String companyProductID = '';
   String modelID = '';
 
-
   @override
   void initState() {
     super.initState();
@@ -189,7 +188,7 @@ class _ShopProductState extends State<ShopProduct> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Модель: ${takeFinishedProduct.modelName} qweqweqxqwee',
+                                      'Модель: ${takeFinishedProduct.modelName} ',
                                       style: TextStyle(
                                         fontSize: 13.sp,
                                         fontWeight: FontWeight.w500,
@@ -276,4 +275,3 @@ class _ShopProductState extends State<ShopProduct> {
     );
   }
 }
-
